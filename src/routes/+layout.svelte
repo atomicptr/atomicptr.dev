@@ -1,0 +1,22 @@
+<script lang="ts">
+    import "../app.css";
+
+    import Footer from "$lib/components/Footer.svelte";
+    import Navbar from "$lib/components/Navbar.svelte";
+</script>
+
+<div class="app">
+    <div class="flex justify-between mx-auto max-w-screen-xl">
+        <Navbar />
+    </div>
+
+    <div class="flex justify-between px-4 mx-auto max-w-screen-xl">
+        <main class="my-8 w-full">
+            <slot />
+        </main>
+    </div>
+
+    <footer>
+        <Footer />
+    </footer>
+</div>
