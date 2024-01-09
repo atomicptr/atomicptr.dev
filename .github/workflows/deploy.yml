@@ -2,10 +2,10 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: master
+    branches: [master]
 
 jobs:
-  build_site:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -27,7 +27,7 @@ jobs:
         with:
           path: 'build/'
   deploy:
-    needs: build_site
+    needs: build
     runs-on: ubuntu-latest
     permissions:
       pages: write
