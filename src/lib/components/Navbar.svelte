@@ -1,5 +1,6 @@
 <script lang="ts">
     import { faGithub, faXTwitter } from "@fortawesome/free-brands-svg-icons";
+    import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
     import { derived } from "svelte/store";
     import Fa from "svelte-fa";
 
@@ -28,7 +29,9 @@
             <Logo />
         </a>
     </div>
-    <div class="navbar-center gap-2">
+
+    <!-- desktop nav -->
+    <div class="navbar-center gap-2 hidden lg:flex">
         <a
             class="btn text-xl uppercase {renderActive($active, ActiveArea.Home)}"
             href="/">Home</a
@@ -38,7 +41,7 @@
             href="/blog">Blog</a
         >
     </div>
-    <div class="navbar-end">
+    <div class="navbar-end hidden lg:flex">
         <a
             class="btn btn-ghost btn-circle"
             href="https://github.com/atomicptr"
@@ -58,5 +61,25 @@
         >
             <Fa icon={faXTwitter} />
         </a>
+    </div>
+
+    <!-- mobile nav -->
+    <div class="navbar-end lg:hidden">
+        <div class="dropdown dropdown-end">
+            <div
+                tabindex="0"
+                role="button"
+                class="btn btn-ghost rounded-btn"
+            >
+                <Fa icon={faEllipsis} />
+            </div>
+            <ul
+                tabindex="-1"
+                class="menu dropdown-content z-[1] p-2 shadow bg-base-100 rounded-box w-52 mt-4"
+            >
+                <li><a href="/">Home</a></li>
+                <li><a href="/blog">Blog</a></li>
+            </ul>
+        </div>
     </div>
 </div>
