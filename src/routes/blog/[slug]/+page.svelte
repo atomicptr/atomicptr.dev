@@ -87,4 +87,28 @@
         margin-left: auto;
         margin-right: auto;
     }
+
+    :global(.post-content h2) {
+        font-size: 30px;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    :global(.post-content h3) {
+        font-size: 20px;
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+        font-weight: bold;
+    }
+
+    :global(.post-content ul) {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    :global(.post-content li) {
+        margin-left: 4rem;
+        list-style: disc;
+    }
 </style>
