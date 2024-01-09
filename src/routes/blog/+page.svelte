@@ -1,6 +1,7 @@
 <script lang="ts">
     import groupBy from "object.groupby";
-    import Time from "svelte-time";
+
+    import DateJS from "$lib/components/DateJS.svelte";
 
     import type { BlogData } from "./blog-types";
 
@@ -16,9 +17,9 @@
         {#each posts as post}
             <div class="flex">
                 <div class="text-gray-400 w-1/12">
-                    <Time
+                    <DateJS
                         timestamp={post.createdAt}
-                        format="MMM, DD"
+                        format="MMM. DD"
                     />
                 </div>
                 <div class="grow">

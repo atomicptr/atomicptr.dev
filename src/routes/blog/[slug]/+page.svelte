@@ -1,8 +1,7 @@
 <script lang="ts">
-    import Time from "svelte-time";
-
     import Author from "$lib/components/Author.svelte";
     import CommentSection from "$lib/components/CommentSection.svelte";
+    import DateJS from "$lib/components/DateJS.svelte";
 
     import type { PostData } from "./post-types";
 
@@ -55,7 +54,7 @@
 <header class="mb-4 lg:mb-6 not-format">
     <Author {...data.post.author}>
         <p class="text-base text-gray-500 dark:text-gray-400">
-            <Time
+            <DateJS
                 timestamp={data.post.createdAt}
                 format="MMM. DD, YYYY"
             />
