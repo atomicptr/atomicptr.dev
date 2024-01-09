@@ -16,7 +16,7 @@
     <div class="w-full">
         {#each posts as post}
             <div class="flex">
-                <div class="text-gray-400 w-1/12">
+                <div class="text-gray-400 w-1/12 hidden lg:flex">
                     <DateJS
                         timestamp={post.createdAt}
                         format="MMM. DD"
