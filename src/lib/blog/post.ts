@@ -9,7 +9,6 @@ export interface Post {
     };
     labels: string[];
     createdAt: Date;
-    updatedAt: Date;
     options: {
         commentsDisabled: boolean;
     };

@@ -25,7 +25,6 @@ const queryFindPosts = gql`
                             title
                             body
                             createdAt
-                            lastEditedAt
                             number
                             author {
                                 login
@@ -62,7 +61,6 @@ interface DiscussionNode {
     title: string;
     body: string;
     createdAt: string;
-    lastEditedAt: string;
     number: number;
     author: {
         login: string;
@@ -157,7 +155,6 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
         const body = content.body;
 
         const createdAt = new Date(Date.parse(node.createdAt));
-        const updatedAt = new Date(Date.parse(node.lastEditedAt));
 
         return {
             author: { avatarUrl: node.author.avatarUrl, url: node.author.url, username: node.author.login },
@@ -170,7 +167,6 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
             },
             slug: content.slug ?? slugify(node.title, { lower: true }),
             title: node.title,
-            updatedAt,
         };
     }
 }
