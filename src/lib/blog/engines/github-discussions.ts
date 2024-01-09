@@ -100,6 +100,8 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
     }
 
     async findPostBySlug(slug: string): Promise<Post | null> {
+        // TODO: extremely naive implementation but honestly should i ever have written enough blog posts that this
+        //  will cause issues I might as well graduate to a better system. So this is #GoodEnough
         const posts = await this.findPosts();
         return posts.find(post => post.slug === slug) ?? null;
     }

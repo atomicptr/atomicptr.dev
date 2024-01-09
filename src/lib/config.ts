@@ -1,6 +1,4 @@
-export enum Engine {
-    GithubDiscussions,
-}
+import { Engine } from "$lib/blog/engine";
 
 export default {
     engine: Engine.GithubDiscussions,

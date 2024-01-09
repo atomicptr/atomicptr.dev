@@ -1,11 +1,11 @@
 import { error } from "@sveltejs/kit";
 
-import GithubDiscussionsBlogEngine from "$lib/blog/engines/github-discussions";
+import { createBlogEngine } from "$lib/blog/create-engine";
 
 import type { PostData } from "./post-types";
 
 export async function load({ params }): Promise<PostData> {
-    const engine = new GithubDiscussionsBlogEngine();
+    const engine = createBlogEngine();
 
     const post = await engine.findPostBySlug(params.slug);
 

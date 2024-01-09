@@ -1,9 +1,9 @@
-import GithubDiscussionsBlogEngine from "$lib/blog/engines/github-discussions";
+import { createBlogEngine } from "$lib/blog/create-engine";
 
 import type { BlogData } from "./blog-types";
 
 export async function load(): Promise<BlogData> {
-    const engine = new GithubDiscussionsBlogEngine();
+    const engine = createBlogEngine();
 
     const posts = await engine.findPosts();
 
