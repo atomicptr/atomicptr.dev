@@ -3,6 +3,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [master]
+  discussion:
+    types: [created]
 
 jobs:
   build:
@@ -18,6 +20,10 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm install
+      - name: Lint
+        run: |
+          npm run check
+          npm run lint
       - name: build
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
