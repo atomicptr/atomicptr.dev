@@ -1,7 +1,7 @@
 import { type Client, createClient, fetchExchange, gql } from "@urql/core";
 import slugify from "slugify";
 
-import { GITHUB_API_KEY } from "$env/static/private";
+import { GH_TOKEN } from "$env/static/private";
 import BlogEngine from "$lib/blog/engine";
 import { parseBody } from "$lib/blog/parse";
 import config from "$lib/config";
@@ -80,7 +80,7 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
     constructor() {
         super();
 
-        if (!GITHUB_API_KEY) {
+        if (!GH_TOKEN) {
             throw Error("Could not find Github API Key!");
         }
 
@@ -89,7 +89,7 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
             fetchOptions: () => {
                 return {
                     headers: {
-                        authorization: `Bearer ${GITHUB_API_KEY}`,
+                        authorization: `Bearer ${GH_TOKEN}`,
                         "user-agent": config.githubDiscussions.repository,
                     },
                 };
