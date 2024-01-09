@@ -1,10 +1,10 @@
 <script lang="ts">
     import { faGithub, faXTwitter } from "@fortawesome/free-brands-svg-icons";
+    import { derived } from "svelte/store";
     import Fa from "svelte-fa";
 
-    import Logo from "$lib/components/Logo.svelte";
     import { page } from "$app/stores";
-    import { derived } from "svelte/store";
+    import Logo from "$lib/components/Logo.svelte";
 
     enum ActiveArea {
         Home,

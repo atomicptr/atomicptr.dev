@@ -1,21 +1,25 @@
 import matter from "gray-matter";
+import rehypePrettyCode from "rehype-pretty-code";
 import rehypeRaw from "rehype-raw";
 import rehypeStringify from "rehype-stringify";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
-import rehypePrettyCode from "rehype-pretty-code";
 
 export interface MarkdownContent {
     body: string;
     slug?: string;
     commentsDisabled: boolean;
+    description?: string;
+    image?: string;
 }
 
 export async function parseBody(markdown: string): Promise<MarkdownContent> {
     const content: MarkdownContent = {
         body: markdown,
         commentsDisabled: false,
+        description: undefined,
+        image: undefined,
         slug: undefined,
     };
 
@@ -26,6 +30,14 @@ export async function parseBody(markdown: string): Promise<MarkdownContent> {
 
         if (frontmatter && frontmatter.slug) {
             content.slug = frontmatter.slug;
+        }
+
+        if (frontmatter && frontmatter.description) {
+            content.description = frontmatter.description;
+        }
+
+        if (frontmatter && frontmatter.image) {
+            content.image = frontmatter.image;
         }
 
         if (frontmatter && frontmatter.commentsDisabled) {
@@ -41,8 +53,8 @@ export async function parseBody(markdown: string): Promise<MarkdownContent> {
         .use(rehypeRaw)
         .use(rehypeStringify)
         .use(rehypePrettyCode, {
-            theme: "github-dark-dimmed",
             keepBackground: true,
+            theme: "github-dark-dimmed",
         })
         .process(content.body);
 

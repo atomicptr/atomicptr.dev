@@ -1,7 +1,8 @@
+import { error } from "@sveltejs/kit";
+
 import GithubDiscussionsBlogEngine from "$lib/blog/engines/github-discussions";
 
 import type { PostData } from "./post-types";
-import { error } from "@sveltejs/kit";
 
 export const prerender = true;
 

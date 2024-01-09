@@ -2,7 +2,7 @@
     import Time from "svelte-time";
 
     import Author from "$lib/components/Author.svelte";
-    import config from "$lib/config.js";
+    import CommentSection from "$lib/components/CommentSection.svelte";
 
     import type { PostData } from "./post-types";
 
@@ -11,10 +11,45 @@
 
 <svelte:head>
     <title>{data.post.title} - atomicptr.dev</title>
+
     <meta
-        name="description"
-        content="post description"
+        name="twitter:card"
+        content="summary"
     />
+    <meta
+        name="twitter:title"
+        content="{data.post.title} - atomicptr.dev"
+    />
+    <meta
+        property="og:title"
+        content="{data.post.title} - atomicptr.dev"
+    />
+
+    {#if data.post.description}
+        <meta
+            name="description"
+            content={data.post.description}
+        />
+        <meta
+            name="twitter:description"
+            content={data.post.description}
+        />
+        <meta
+            property="og:description"
+            content={data.post.description}
+        />
+    {/if}
+
+    {#if data.post.image}
+        <meta
+            name="twitter:image"
+            content={data.post.image}
+        />
+        <meta
+            property="og:image"
+            content={data.post.image}
+        />
+    {/if}
 </svelte:head>
 
 <header class="mb-4 lg:mb-6 not-format">
@@ -33,26 +68,11 @@
 </header>
 
 <div class="post-content">
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html data.post.body}
 </div>
 
-<div>
-    <script
-        src="https://giscus.app/client.js"
-        data-repo="{config.githubDiscussions.username}/{config.githubDiscussions.repository}"
-        data-repo-id={config.githubDiscussions.repositoryId}
-        data-mapping="number"
-        data-term={data.post.number}
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="bottom"
-        data-theme="dark"
-        data-lang="en"
-        crossorigin="anonymous"
-        async
-    >
-    </script>
-</div>
+<CommentSection number={data.post.number} />
 
 <style>
     :global(.post-content figure) {

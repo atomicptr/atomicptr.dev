@@ -107,7 +107,7 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
     }
 
     async findPosts(): Promise<Post[]> {
-        let posts: Post[] = [];
+        const posts: Post[] = [];
 
         const max = 100;
 

@@ -14,4 +14,6 @@ export interface Post {
         commentsDisabled: boolean;
     };
     number: number;
+    description?: string;
+    image?: string;
 }
