@@ -1,13 +1,9 @@
 import GithubDiscussionsBlogEngine from "$lib/blog/engines/github-discussions";
 
-import type { BlogData } from "./blog-types";
-
-export async function load(): Promise<BlogData> {
+export async function entries(): Promise<{ slug: string }[]> {
     const engine = new GithubDiscussionsBlogEngine();
 
     const posts = await engine.findPosts();
 
-    return {
-        posts,
-    };
+    return posts.map(({ slug }) => ({ slug }));
 }

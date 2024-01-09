@@ -17,7 +17,7 @@
             <div class="flex">
                 <div class="text-gray-400 w-1/12">
                     <Time
-                        datetime={post.createdAt.toISOString()}
+                        timestamp={post.createdAt}
                         format="MMM, DD"
                     />
                 </div>

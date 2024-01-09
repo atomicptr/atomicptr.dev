@@ -4,8 +4,6 @@ import GithubDiscussionsBlogEngine from "$lib/blog/engines/github-discussions";
 
 import type { PostData } from "./post-types";
 
-export const prerender = true;
-
 export async function load({ params }): Promise<PostData> {
     const engine = new GithubDiscussionsBlogEngine();
 

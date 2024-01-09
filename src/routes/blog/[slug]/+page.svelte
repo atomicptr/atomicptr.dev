@@ -56,7 +56,7 @@
     <Author {...data.post.author}>
         <p class="text-base text-gray-500 dark:text-gray-400">
             <Time
-                datetime={data.post.createdAt.toISOString()}
+                timestamp={data.post.createdAt}
                 format="MMM. DD, YYYY"
             />
         </p>
