@@ -159,10 +159,30 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
 
         const createdAt = new Date(Date.parse(node.createdAt));
 
+        let image = content.image;
+
+        // if no image is present pick the first one in the payload automatically (assuming there is one)
+        if (!image) {
+            const regex = /<img src="(.+)" alt/g;
+            const matches = regex.exec(body);
+
+            if (matches) {
+                image = matches[1];
+            }
+        }
+
+        let description = content.description;
+
+        if (!description) {
+            description = body.replace(/(<([^>]+)>)/gi, "").substring(0, 247) + "...";
+        }
+
         return {
             author: { avatarUrl: node.author.avatarUrl, url: node.author.url, username: node.author.login },
             body,
             createdAt,
+            description,
+            image,
             labels: node.labels.nodes.map(label => label.name),
             number: node.number,
             options: {

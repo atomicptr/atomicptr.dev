@@ -2,6 +2,7 @@ import matter from "gray-matter";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeRaw from "rehype-raw";
 import rehypeStringify from "rehype-stringify";
+import remarkGemoji from "remark-gemoji";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import { unified } from "unified";
@@ -56,6 +57,7 @@ export async function parseBody(markdown: string): Promise<MarkdownContent> {
             keepBackground: true,
             theme: "github-dark-dimmed",
         })
+        .use(remarkGemoji)
         .process(content.body);
 
     content.body = file.toString();

@@ -24,20 +24,18 @@
         content="{data.post.title} - atomicptr.dev"
     />
 
-    {#if data.post.description}
-        <meta
-            name="description"
-            content={data.post.description}
-        />
-        <meta
-            name="twitter:description"
-            content={data.post.description}
-        />
-        <meta
-            property="og:description"
-            content={data.post.description}
-        />
-    {/if}
+    <meta
+        name="description"
+        content={data.post.description}
+    />
+    <meta
+        name="twitter:description"
+        content={data.post.description}
+    />
+    <meta
+        property="og:description"
+        content={data.post.description}
+    />
 
     {#if data.post.image}
         <meta
