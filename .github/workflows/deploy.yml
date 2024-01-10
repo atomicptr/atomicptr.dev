@@ -1,0 +1,13 @@
+on:
+  discussion:
+    types: [created, edited, deleted]
+
+jobs:
+  test_schedule:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Cloudflare Deployment
+        run: |
+          curl -X POST "$CF_DEPLOY_HOOK_URL"
+        env:
+          CF_DEPLOY_HOOK_URL: ${{ secrets.CF_DEPLOY_HOOK_URL }}
