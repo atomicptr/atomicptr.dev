@@ -83,7 +83,9 @@
 
 <div class="my-4"></div>
 
-<CommentSection number={data.post.number} />
+{#if !data.post.options.commentsDisabled}
+    <CommentSection number={data.post.number} />
+{/if}
 
 <style>
     :global(.post-content figure) {
