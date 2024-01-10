@@ -1,9 +1,15 @@
-<script>
-    import MetaTitle from "$lib/components/MetaTitle.svelte";
-</script>
-
 <svelte:head>
-    <MetaTitle title="Home" />
+    <title>Home | dev://atomicptr</title>
+
+    <meta
+        name="twitter:title"
+        content="Home | dev://atomicptr"
+    />
+
+    <meta
+        property="og:title"
+        content="Home | dev://atomicptr"
+    />
 </svelte:head>
 
 <div class="hero min-h-screen">
