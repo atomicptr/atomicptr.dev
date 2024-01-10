@@ -76,6 +76,7 @@ interface DiscussionNode {
 
 export default class GithubDiscussionsBlogEngine extends BlogEngine {
     private client: Client;
+    private posts: Post[] = [];
 
     constructor() {
         super();
@@ -107,6 +108,11 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
     }
 
     async findPosts(): Promise<Post[]> {
+        // since we only need this at build time might as well cache it
+        if (this.posts.length > 0) {
+            return this.posts;
+        }
+
         const posts: Post[] = [];
 
         // realistically I doubt i will ever write a hundred posts...
@@ -149,6 +155,7 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
             }
         }
 
+        this.posts = posts;
         return posts;
     }
 

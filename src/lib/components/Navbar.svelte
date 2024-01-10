@@ -1,6 +1,6 @@
 <script lang="ts">
     import { faGithub, faXTwitter } from "@fortawesome/free-brands-svg-icons";
-    import { faEllipsis } from "@fortawesome/free-solid-svg-icons";
+    import { faEllipsis, faRss } from "@fortawesome/free-solid-svg-icons";
     import { derived } from "svelte/store";
     import Fa from "svelte-fa";
 
@@ -60,6 +60,14 @@
             title="X"
         >
             <Fa icon={faXTwitter} />
+        </a>
+        <a
+            class="btn btn-ghost text-xl"
+            href="/rss.xml"
+            target="_blank"
+            title="RSS"
+        >
+            <Fa icon={faRss} />
         </a>
     </div>
 
