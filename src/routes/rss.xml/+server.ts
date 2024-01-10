@@ -4,6 +4,8 @@ import { createBlogEngine } from "$lib/blog/create-engine";
 import type { Post } from "$lib/blog/post";
 import config from "$lib/config";
 
+export const prerender = true;
+
 export async function GET() {
     const engine = createBlogEngine();
     const posts = await engine.findPosts();
