@@ -3,7 +3,27 @@
 
     import Footer from "$lib/components/Footer.svelte";
     import Navbar from "$lib/components/Navbar.svelte";
+    import config from "$lib/config";
 </script>
+
+<svelte:head>
+    <meta
+        name="twitter:card"
+        content="summary"
+    />
+    <meta
+        name="description"
+        content={config.description}
+    />
+    <meta
+        name="twitter:description"
+        content={config.description}
+    />
+    <meta
+        property="og:description"
+        content={config.description}
+    />
+</svelte:head>
 
 <div class="app">
     <div class="flex justify-between mx-auto max-w-screen-xl">

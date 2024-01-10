@@ -2,6 +2,7 @@
     import Author from "$lib/components/Author.svelte";
     import CommentSection from "$lib/components/CommentSection.svelte";
     import DateJS from "$lib/components/DateJS.svelte";
+    import MetaTitle from "$lib/components/MetaTitle.svelte";
 
     import type { PostData } from "./post-types";
 
@@ -9,20 +10,7 @@
 </script>
 
 <svelte:head>
-    <title>{data.post.title} - atomicptr.dev</title>
-
-    <meta
-        name="twitter:card"
-        content="summary"
-    />
-    <meta
-        name="twitter:title"
-        content="{data.post.title} - atomicptr.dev"
-    />
-    <meta
-        property="og:title"
-        content="{data.post.title} - atomicptr.dev"
-    />
+    <MetaTitle title={data.post.title} />
 
     <meta
         name="description"

@@ -1,5 +1,9 @@
+<script>
+    import MetaTitle from "$lib/components/MetaTitle.svelte";
+</script>
+
 <svelte:head>
-    <title>Home</title>
+    <MetaTitle title="Home" />
 </svelte:head>
 
 <div class="hero min-h-screen">
