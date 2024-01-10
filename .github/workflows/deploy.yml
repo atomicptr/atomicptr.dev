@@ -8,6 +8,4 @@ jobs:
     steps:
       - name: Trigger Cloudflare Deployment
         run: |
-          curl -X POST "$CF_DEPLOY_HOOK_URL"
-        env:
-          CF_DEPLOY_HOOK_URL: ${{ secrets.CF_DEPLOY_HOOK_URL }}
+          curl -X POST "${{ secrets.CF_DEPLOY_HOOK_URL }}"
