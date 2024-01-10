@@ -38,7 +38,7 @@
                 </div>
                 <div class="grow">
                     <a
-                        class="font-bold"
+                        class="font-bold text-primary"
                         href="/blog/{post.slug}">{post.title}</a
                     >
                 </div>

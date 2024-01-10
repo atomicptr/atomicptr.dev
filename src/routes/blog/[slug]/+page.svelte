@@ -48,7 +48,7 @@
 
 <header class="mb-4 lg:mb-6 not-format">
     <Author {...data.post.author}>
-        <p class="text-base text-gray-500 dark:text-gray-400">
+        <p>
             <DateJS
                 timestamp={data.post.createdAt}
                 format="MMM. DD, YYYY"
@@ -56,7 +56,7 @@
         </p>
     </Author>
 
-    <h1 class="mb-4 text-3xl font-extrabold leading-tight text-gray-900 lg:mb-6 lg:text-4xl dark:text-white">
+    <h1 class="mb-4 text-3xl font-extrabold leading-tight lg:mb-6 lg:text-4xl">
         {data.post.title}
     </h1>
 </header>
@@ -105,5 +105,10 @@
     :global(.post-content li) {
         margin-left: 4rem;
         list-style: disc;
+    }
+
+    :global(.post-content a) {
+        font-weight: bold;
+        color: oklch(var(--p));
     }
 </style>
