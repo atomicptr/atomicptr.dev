@@ -11,6 +11,7 @@ export interface Post {
     createdAt: Date;
     options: {
         commentsDisabled: boolean;
+        draft: boolean;
     };
     number: number;
     description?: string;

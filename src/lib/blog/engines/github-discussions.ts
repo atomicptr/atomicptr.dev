@@ -1,6 +1,7 @@
 import { type Client, createClient, fetchExchange, gql } from "@urql/core";
 import slugify from "slugify";
 
+import { dev } from "$app/environment";
 import { GH_TOKEN } from "$env/static/private";
 import BlogEngine from "$lib/blog/engine";
 import { parseBody } from "$lib/blog/parse";
@@ -143,7 +144,13 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
             }
 
             for (const node of result.data.repository.discussions.edges) {
-                posts.push(await this.parsePost(node.node));
+                const post = await this.parsePost(node.node);
+
+                if (post.options.draft && !dev) {
+                    continue;
+                }
+
+                posts.push(post);
             }
 
             const last = posts[posts.length - 1];
@@ -194,6 +201,7 @@ export default class GithubDiscussionsBlogEngine extends BlogEngine {
             number: node.number,
             options: {
                 commentsDisabled: content.commentsDisabled,
+                draft: content.draft,
             },
             slug: content.slug ?? slugify(node.title, { lower: true }),
             title: node.title,

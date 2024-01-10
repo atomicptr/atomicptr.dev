@@ -12,6 +12,7 @@ export interface MarkdownContent {
     slug?: string;
     commentsDisabled: boolean;
     description?: string;
+    draft: boolean;
     image?: string;
 }
 
@@ -20,6 +21,7 @@ export async function parseBody(markdown: string): Promise<MarkdownContent> {
         body: markdown,
         commentsDisabled: false,
         description: undefined,
+        draft: false,
         image: undefined,
         slug: undefined,
     };
@@ -39,6 +41,10 @@ export async function parseBody(markdown: string): Promise<MarkdownContent> {
 
         if (frontmatter && frontmatter.image) {
             content.image = frontmatter.image;
+        }
+
+        if (frontmatter && frontmatter.draft) {
+            content.draft = frontmatter.draft;
         }
 
         if (frontmatter && frontmatter.commentsDisabled) {
