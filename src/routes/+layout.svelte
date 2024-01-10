@@ -18,17 +18,30 @@
         name="twitter:card"
         content="summary"
     />
+
     <meta
         name="description"
         content={config.description}
     />
+
     <meta
         name="twitter:description"
         content={config.description}
     />
+
     <meta
         property="og:description"
         content={config.description}
+    />
+
+    <meta
+        name="twitter:image"
+        content="/favicon.png"
+    />
+
+    <meta
+        property="og:image"
+        content="/favicon.png"
     />
 </svelte:head>
 
