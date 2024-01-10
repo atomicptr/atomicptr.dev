@@ -1,4 +1,5 @@
 import { createBlogEngine } from "$lib/blog/create-engine";
+
 import type { TagData } from "./tag-types";
 
 export async function load({ params }): Promise<TagData> {
@@ -8,5 +9,6 @@ export async function load({ params }): Promise<TagData> {
 
     return {
         posts: posts.filter(post => post.labels?.some(label => label === params.tag)),
+        tag: params.tag ?? "",
     };
 }

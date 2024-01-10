@@ -36,7 +36,7 @@
 
     <meta
         name="twitter:image"
-        content="/favicon.png"
+        content="/social.png"
     />
 
     <meta
