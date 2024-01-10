@@ -7,6 +7,13 @@
 </script>
 
 <svelte:head>
+    <link
+        rel="alternate"
+        type="application/rss+xml"
+        title="RSS"
+        href="{config.domainPrefix}/rss.xml"
+    />
+
     <meta
         name="twitter:card"
         content="summary"

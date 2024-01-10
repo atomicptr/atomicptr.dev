@@ -27,7 +27,7 @@ const rss = (
 ): string => `<rss xmlns:dc="https://purl.org/dc/elements/1.1/" xmlns:content="https://purl.org/rss/1.0/modules/content/" xmlns:atom="https://www.w3.org/2005/Atom" version="2.0">
   <channel>
     <title>atomicptr.dev</title>
-    <link>https://atomicptr.dev</link>
+    <link>${config.domainPrefix}</link>
     <description>${config.description}</description>
     ${posts
         .map(
@@ -36,12 +36,12 @@ const rss = (
         <item>
           <title>${post.title}</title>
           <description>${post.description}</description>
-          <link>https://atomicptr.dev/blog/${post.slug}/</link>
+          <link>${config.domainPrefix}/blog/${post.slug}/</link>
           <pubDate>${post.createdAt}</pubDate>
           <content:encoded>${truncate(post.body, 250)}
             <div style="margin-top: 50px; font-style: italic;">
               <strong>
-                <a href="https://atomicptr.dev/blog/${post.slug}">
+                <a href="${config.domainPrefix}/blog/${post.slug}">
                   Keep reading
                 </a>
               </strong>
