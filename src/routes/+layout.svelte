@@ -41,7 +41,7 @@
 
     <meta
         property="og:image"
-        content="/favicon.png"
+        content="/social.jpg"
     />
 </svelte:head>
 
