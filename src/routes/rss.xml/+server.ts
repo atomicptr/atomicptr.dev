@@ -1,5 +1,3 @@
-import truncate from "truncate-html";
-
 import { createBlogEngine } from "$lib/blog/create-engine";
 import type { Post } from "$lib/blog/post";
 import config from "$lib/config";
@@ -22,31 +20,22 @@ export async function GET() {
     });
 }
 
-const rss = (
-    posts: Post[],
-): string => `<rss xmlns:dc="https://purl.org/dc/elements/1.1/" xmlns:content="https://purl.org/rss/1.0/modules/content/" xmlns:atom="https://www.w3.org/2005/Atom" version="2.0">
+const rss = (posts: Post[]): string => `<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
   <channel>
     <title>atomicptr.dev</title>
     <link>${config.domainPrefix}</link>
     <description>${config.description}</description>
+    <atom:link href="${config.domainPrefix}/rss.xml" rel="self" type="application/rss+xml" />
     ${posts
         .map(
             post =>
                 `
         <item>
+          <guid>${config.domainPrefix}/blog/${post.slug}/</guid>
           <title>${post.title}</title>
           <description>${post.description}</description>
           <link>${config.domainPrefix}/blog/${post.slug}/</link>
-          <pubDate>${post.createdAt}</pubDate>
-          <content:encoded>${truncate(post.body, 250)}
-            <div style="margin-top: 50px; font-style: italic;">
-              <strong>
-                <a href="${config.domainPrefix}/blog/${post.slug}">
-                  Keep reading
-                </a>
-              </strong>
-            </div>
-          </content:encoded>
+          <pubDate>${post.createdAt.toUTCString()}</pubDate>
         </item>
       `,
         )
