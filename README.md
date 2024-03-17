@@ -1,6 +1,6 @@
 # atomicptr.dev
 
-A simple Github Discussions based blog engine powered by SvelteKit. For me and only me :).
+A frontend for my headless blog system [Nimbus](https://github.com/atomicptr/nimbus), powered by SvelteKit.
 
 See: https://atomicptr.dev
 

@@ -1,5 +1,5 @@
-import type { Post } from "$lib/blog/post";
+import type { PostDetails } from "$lib/blog/nimbus";
 
 export interface PostData {
-    post: Post;
+    post: PostDetails;
 }

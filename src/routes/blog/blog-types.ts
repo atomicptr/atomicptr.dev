@@ -1,4 +1,4 @@
-import type { Post } from "$lib/blog/post";
+import type { Post } from "$lib/blog/nimbus";
 
 export interface BlogData {
     posts: Post[];

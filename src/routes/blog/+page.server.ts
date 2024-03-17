@@ -1,9 +1,7 @@
-import { createBlogEngine } from "$lib/blog/create-engine";
+import { findPosts } from "$lib/blog/nimbus";
 
-export async function entries(): Promise<{ slug: string }[]> {
-    const engine = createBlogEngine();
+export async function entries(): Promise<{ id: number; slug: string }[]> {
+    const posts = await findPosts();
 
-    const posts = await engine.findPosts();
-
-    return posts.map(({ slug }) => ({ slug }));
+    return posts.map(({ id, slug }) => ({ id, slug }));
 }

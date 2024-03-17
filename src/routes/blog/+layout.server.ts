@@ -1,11 +1,9 @@
-import { createBlogEngine } from "$lib/blog/create-engine";
+import { findPosts } from "$lib/blog/nimbus";
 
 import type { BlogData } from "./blog-types";
 
 export async function load(): Promise<BlogData> {
-    const engine = createBlogEngine();
-
-    const posts = await engine.findPosts();
+    const posts = await findPosts();
 
     return {
         posts,

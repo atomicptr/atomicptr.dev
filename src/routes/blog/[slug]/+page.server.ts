@@ -1,13 +1,14 @@
 import { error } from "@sveltejs/kit";
 
-import { createBlogEngine } from "$lib/blog/create-engine";
+import { findPostBySlug } from "$lib/blog/nimbus";
 
 import type { PostData } from "./post-types";
 
-export async function load({ params }): Promise<PostData> {
-    const engine = createBlogEngine();
+export async function load(data): Promise<PostData> {
+    const params = data.params;
+    const parent = await data.parent();
 
-    const post = await engine.findPostBySlug(params.slug);
+    const post = await findPostBySlug(params.slug, parent.posts);
 
     if (!post) {
         error(404, {
