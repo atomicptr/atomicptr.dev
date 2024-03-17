@@ -1,6 +1,6 @@
 <script lang="ts">
     export let username: string;
-    export let url: string;
+    export let url: string | null = null;
     export let avatarUrl: string;
     export let subline: string | null = null;
 </script>
@@ -13,12 +13,18 @@
             alt={username}
         />
         <div>
-            <a
-                href={url}
-                target="_blank"
-                rel="author"
-                class="text-xl font-bold text-gray-900 dark:text-white">{username}</a
-            >
+            {#if url}
+                <a
+                    href={url}
+                    target="_blank"
+                    rel="author"
+                    class="text-xl font-bold text-gray-900 dark:text-white"
+                >
+                    {username}
+                </a>
+            {:else}
+                <span class="text-xl font-bold text-gray-900 dark:text-white">{username}</span>
+            {/if}
             {#if subline}
                 <p class="text-base text-gray-500 dark:text-gray-400">
                     {subline}

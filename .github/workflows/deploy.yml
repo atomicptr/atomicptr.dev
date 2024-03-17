@@ -1,12 +1,12 @@
 on:
-  discussion:
-    types: [created, edited, deleted]
+    discussion:
+        types: [created, edited, deleted]
 
 jobs:
-  cloudflare-pages:
-    runs-on: ubuntu-latest
-    environment: CI
-    steps:
-      - name: Trigger Cloudflare Deployment
-        run: |
-          curl -X POST "${{ secrets.CF_DEPLOY_HOOK_URL }}"
+    cloudflare-pages:
+        runs-on: ubuntu-latest
+        environment: CI
+        steps:
+            - name: Trigger Cloudflare Deployment
+              run: |
+                  curl -X POST "${{ secrets.CF_DEPLOY_HOOK_URL }}"

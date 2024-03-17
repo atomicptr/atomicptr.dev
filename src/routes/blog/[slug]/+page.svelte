@@ -5,6 +5,7 @@
     import Author from "$lib/components/Author.svelte";
     import CommentSection from "$lib/components/CommentSection.svelte";
     import DateJS from "$lib/components/DateJS.svelte";
+    import { gravatar } from "$lib/gravatar";
 
     import type { PostData } from "./post-types";
 
@@ -24,36 +25,41 @@
         content="{data.post.title} | dev://atomicptr"
     />
 
-    <meta
-        name="description"
-        content={data.post.description}
-    />
-    <meta
-        name="twitter:description"
-        content={data.post.description}
-    />
-    <meta
-        property="og:description"
-        content={data.post.description}
-    />
+    {#if data.post.description}
+        <meta
+            name="description"
+            content={data.post.description}
+        />
+        <meta
+            name="twitter:description"
+            content={data.post.description}
+        />
+        <meta
+            property="og:description"
+            content={data.post.description}
+        />
+    {/if}
 
-    {#if data.post.image}
+    {#if data.post.promo_image}
         <meta
             name="twitter:image"
-            content={data.post.image}
+            content={data.post.promo_image}
         />
         <meta
             property="og:image"
-            content={data.post.image}
+            content={data.post.promo_image}
         />
     {/if}
 </svelte:head>
 
 <header class="mb-4 lg:mb-6 not-format">
-    <Author {...data.post.author}>
+    <Author
+        username={data.post.author.name}
+        avatarUrl={gravatar(data.post.author.email)}
+    >
         <p>
             <DateJS
-                timestamp={data.post.createdAt}
+                timestamp={data.post.created_at}
                 format="MMM. DD, YYYY"
             />
         </p>
@@ -66,26 +72,24 @@
 
 <div class="post-content">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html data.post.body}
+    {@html data.post.content}
 </div>
 
 <div class="flex justify-center gap-1">
-    {#each data.post.labels as label}
+    {#each data.post.tags as tag}
         <a
             class="badge badge-primary hover:badge-secondary gap-2"
-            href="/tags/{label}"
+            href="/tags/{tag.slug}"
         >
             <Fa icon={faTags} />
-            {label}
+            {tag.slug}
         </a>
     {/each}
 </div>
 
 <div class="my-4"></div>
 
-{#if !data.post.options.commentsDisabled}
-    <CommentSection number={data.post.number} />
-{/if}
+<CommentSection />
 
 <style>
     :global(.post-content figure) {

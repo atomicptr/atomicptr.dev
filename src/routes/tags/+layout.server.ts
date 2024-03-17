@@ -1,14 +1,12 @@
-import { createBlogEngine } from "$lib/blog/create-engine";
+import { findPosts } from "$lib/blog/nimbus";
 
 import type { TagData } from "./tag-types";
 
 export async function load({ params }): Promise<TagData> {
-    const engine = createBlogEngine();
-
-    const posts = await engine.findPosts();
+    const posts = await findPosts();
 
     return {
-        posts: posts.filter(post => post.labels?.some(label => label === params.tag)),
+        posts: posts.filter(post => post.tags?.some(tag => tag.slug === params.tag)),
         tag: params.tag ?? "",
     };
 }

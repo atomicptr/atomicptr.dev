@@ -1,15 +1,19 @@
 <script lang="ts">
     import groupBy from "object.groupby";
 
-    import type { Post } from "$lib/blog/post";
+    import type { Post } from "$lib/blog/nimbus";
     import DateJS from "$lib/components/DateJS.svelte";
 
     export let posts: Post[];
 
-    const groupedByYear = groupBy(posts, post => post.createdAt.getFullYear());
+    const groupedByYear = groupBy(posts, post => new Date(post.created_at).getFullYear());
+    const groupedByYearArray = Object.keys(groupedByYear)
+        .map(year => ({ posts: groupedByYear[year as unknown as keyof typeof groupedByYear], year }))
+        .sort((a, b) => a.year.localeCompare(b.year))
+        .reverse();
 </script>
 
-{#each Object.entries(groupedByYear) as [year, posts]}
+{#each groupedByYearArray as { year, posts }}
     <div class="w-full flex mb-4">
         <div class="w-16"></div>
         <div class="grow text-3xl font-bold">{year}</div>
@@ -19,7 +23,7 @@
         <div class="w-full flex mb-4 items-center">
             <div class="min-w-16 text-gray-500">
                 <DateJS
-                    timestamp={post.createdAt}
+                    timestamp={new Date(post.created_at)}
                     format="MMM. DD"
                 />
             </div>
