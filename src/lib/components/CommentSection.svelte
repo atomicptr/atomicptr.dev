@@ -3,7 +3,7 @@
         src="https://giscus.app/client.js"
         data-repo="atomicptr/atomicptr.dev"
         data-repo-id="R_kgDOLCEAgg"
-        data-category="Blog"
+        data-category="Comments"
         data-category-id="DIC_kwDOLCEAgs4CcRWF"
         data-mapping="pathname"
         data-strict="1"
@@ -12,7 +12,6 @@
         data-input-position="bottom"
         data-theme="dark"
         data-lang="en"
-        data-loading="lazy"
         crossorigin="anonymous"
         async
     >
