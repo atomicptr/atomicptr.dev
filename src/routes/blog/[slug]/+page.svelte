@@ -1,9 +1,9 @@
 <script lang="ts">
     import { faTags } from "@fortawesome/free-solid-svg-icons";
+    import Giscus from "@giscus/svelte";
     import Fa from "svelte-fa";
 
     import Author from "$lib/components/Author.svelte";
-    import CommentSection from "$lib/components/CommentSection.svelte";
     import DateJS from "$lib/components/DateJS.svelte";
     import { gravatar } from "$lib/gravatar";
 
@@ -89,7 +89,21 @@
 
 <div class="my-4"></div>
 
-<CommentSection />
+<Giscus
+    id="comments"
+    repo="atomicptr/atomicptr.dev"
+    repoId="R_kgDOLCEAgg"
+    category="Comments"
+    categoryId="DIC_kwDOLCEAgs4CcRWF"
+    mapping="pathname"
+    strict="1"
+    reactionsEnabled="1"
+    emitMetadata="0"
+    inputPosition="bottom"
+    theme="dark"
+    lang="en"
+    term="Welcome to dev://atomicptr"
+/>
 
 <style>
     :global(.post-content figure) {
