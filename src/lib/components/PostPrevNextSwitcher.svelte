@@ -13,7 +13,7 @@
             <div class="w-full md:w-auto mt-2">
                 <a
                     href="/blog/{postSeries.previous.slug}"
-                    class="btn w-full md:w-auto gap-2 lg:gap-3"
+                    class="btn w-full h-auto md:w-auto gap-2 lg:gap-3"
                 >
                     <Fa
                         icon={faChevronLeft}
@@ -33,7 +33,7 @@
             <div class="w-full md:w-auto mt-2">
                 <a
                     href="/blog/{postSeries.next.slug}"
-                    class="btn btn-neutral w-full md:w-auto gap-2 lg:gap-3"
+                    class="btn btn-neutral w-full h-auto md:w-auto gap-2 lg:gap-3"
                 >
                     <div class="flex flex-col items-end">
                         <span class="text-neutral-content/50 hidden text-xs font-normal md:block"> Next </span>

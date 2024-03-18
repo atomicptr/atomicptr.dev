@@ -12,6 +12,7 @@
 
     import type { PostData } from "./post-types";
     import PostPrevNextSwitcher from "$lib/components/PostPrevNextSwitcher.svelte";
+    import PostLinksList from "$lib/components/PostLinksList.svelte";
 
     export let data: PostData;
 </script>
@@ -78,6 +79,8 @@
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html data.post.content}
 </div>
+
+<PostLinksList post={data.post} />
 
 <PostPrevNextSwitcher postSeries={data.postSeries} />
 
