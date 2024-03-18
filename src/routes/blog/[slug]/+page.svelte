@@ -5,6 +5,8 @@
 
     import Author from "$lib/components/Author.svelte";
     import DateJS from "$lib/components/DateJS.svelte";
+    import HeaderMetaData from "$lib/components/HeaderMetaData.svelte";
+    import config from "$lib/config";
     import { gravatar } from "$lib/gravatar";
 
     import type { PostData } from "./post-types";
@@ -13,43 +15,22 @@
 </script>
 
 <svelte:head>
-    <title>{data.post.title} | dev://atomicptr</title>
+    <title>{data.post.title} | {config.blogTitle}</title>
 
     <meta
         name="twitter:title"
-        content="{data.post.title} | dev://atomicptr"
+        content="{data.post.title} | {config.blogTitle}"
     />
 
     <meta
         property="og:title"
-        content="{data.post.title} | dev://atomicptr"
+        content="{data.post.title} | {config.blogTitle}"
     />
 
-    {#if data.post.description}
-        <meta
-            name="description"
-            content={data.post.description}
-        />
-        <meta
-            name="twitter:description"
-            content={data.post.description}
-        />
-        <meta
-            property="og:description"
-            content={data.post.description}
-        />
-    {/if}
-
-    {#if data.post.promo_image}
-        <meta
-            name="twitter:image"
-            content={data.post.promo_image}
-        />
-        <meta
-            property="og:image"
-            content={data.post.promo_image}
-        />
-    {/if}
+    <HeaderMetaData
+        description={data.post.description}
+        image={data.post.promo_image}
+    />
 </svelte:head>
 
 <header class="mb-4 lg:mb-6 not-format">
@@ -102,7 +83,7 @@
     inputPosition="bottom"
     theme="dark"
     lang="en"
-    term="Welcome to dev://atomicptr"
+    term={`Welcome to ${config.blogTitle}`}
 />
 
 <style>

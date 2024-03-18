@@ -1,5 +1,7 @@
 <script lang="ts">
+    import HeadImages from "$lib/components/HeaderMetaData.svelte";
     import PostList from "$lib/components/PostList.svelte";
+    import config from "$lib/config";
 
     import type { BlogData } from "./blog-types";
 
@@ -7,17 +9,19 @@
 </script>
 
 <svelte:head>
-    <title>Blog | dev://atomicptr</title>
+    <title>Blog | {config.blogTitle}</title>
 
     <meta
         name="twitter:title"
-        content="Blog | dev://atomicptr"
+        content="Blog | {config.blogTitle}"
     />
 
     <meta
         property="og:title"
-        content="Blog | dev://atomicptr"
+        content="Blog | {config.blogTitle}"
     />
+
+    <HeadImages />
 </svelte:head>
 
 <PostList posts={data.posts} />

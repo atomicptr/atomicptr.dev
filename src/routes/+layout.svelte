@@ -13,36 +13,6 @@
         title="RSS"
         href="{config.domainPrefix}/rss.xml"
     />
-
-    <meta
-        name="twitter:card"
-        content="summary"
-    />
-
-    <meta
-        name="description"
-        content={config.description}
-    />
-
-    <meta
-        name="twitter:description"
-        content={config.description}
-    />
-
-    <meta
-        property="og:description"
-        content={config.description}
-    />
-
-    <meta
-        name="twitter:image"
-        content="/social.jpg"
-    />
-
-    <meta
-        property="og:image"
-        content="/social.jpg"
-    />
 </svelte:head>
 
 <div class="app">

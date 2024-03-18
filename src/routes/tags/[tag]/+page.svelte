@@ -1,5 +1,7 @@
 <script lang="ts">
+    import HeaderMetaData from "$lib/components/HeaderMetaData.svelte";
     import PostList from "$lib/components/PostList.svelte";
+    import config from "$lib/config";
 
     import type { TagData } from "../tag-types";
 
@@ -7,17 +9,19 @@
 </script>
 
 <svelte:head>
-    <title>#{data.tag}| dev://atomicptr</title>
+    <title>#{data.tag}| {config.blogTitle}</title>
 
     <meta
         name="twitter:title"
-        content="#{data.tag} | dev://atomicptr"
+        content="#{data.tag} | {config.blogTitle}"
     />
 
     <meta
         property="og:title"
-        content="#{data.tag} | dev://atomicptr"
+        content="#{data.tag} | {config.blogTitle}"
     />
+
+    <HeaderMetaData />
 </svelte:head>
 
 <PostList posts={data.posts} />

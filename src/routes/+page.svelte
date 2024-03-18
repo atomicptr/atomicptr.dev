@@ -1,15 +1,22 @@
+<script lang="ts">
+    import HeaderMetaData from "$lib/components/HeaderMetaData.svelte";
+    import config from "$lib/config";
+</script>
+
 <svelte:head>
-    <title>Home | dev://atomicptr</title>
+    <title>Home | {config.blogTitle}</title>
 
     <meta
         name="twitter:title"
-        content="Home | dev://atomicptr"
+        content="Home | {config.blogTitle}"
     />
 
     <meta
         property="og:title"
-        content="Home | dev://atomicptr"
+        content="Home | {config.blogTitle}"
     />
+
+    <HeaderMetaData />
 </svelte:head>
 
 <div class="hero min-h-screen">
