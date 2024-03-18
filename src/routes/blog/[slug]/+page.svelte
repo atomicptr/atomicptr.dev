@@ -13,6 +13,7 @@
     import type { PostData } from "./post-types";
     import PostPrevNextSwitcher from "$lib/components/PostPrevNextSwitcher.svelte";
     import PostLinksList from "$lib/components/PostLinksList.svelte";
+    import { fixPromoImage } from "$lib/image.js";
 
     export let data: PostData;
 </script>
@@ -32,7 +33,7 @@
 
     <HeaderMetaData
         description={data.post.description}
-        image={data.post.promo_image}
+        image={fixPromoImage(data.post.promo_image)}
     />
 
     <link
