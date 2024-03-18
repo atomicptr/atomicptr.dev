@@ -6,6 +6,7 @@
     import Author from "$lib/components/Author.svelte";
     import DateJS from "$lib/components/DateJS.svelte";
     import HeaderMetaData from "$lib/components/HeaderMetaData.svelte";
+    import PostSeriesBrowser from "$lib/components/PostSeriesBrowser.svelte";
     import config from "$lib/config";
     import { gravatar } from "$lib/gravatar";
 
@@ -50,6 +51,8 @@
         {data.post.title}
     </h1>
 </header>
+
+<PostSeriesBrowser post={data.post} />
 
 <div class="post-content">
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->

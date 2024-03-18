@@ -7,6 +7,17 @@ export interface PostResponse {
     meta: Meta;
 }
 
+export interface PostDetailsResponse {
+    data: PostDetails;
+    meta_post_series: MetaPostSeries | null;
+}
+
+export interface MetaPostSeries {
+    title: string;
+    previous: Post | null;
+    next: Post | null;
+}
+
 export interface Post {
     id: number;
     title: string;
@@ -41,6 +52,16 @@ export interface PostDetails extends Post {
         archive_link: string | null;
         post_id: number;
     }[];
+    post_series: {
+        id: number;
+        title: string;
+        slug: string;
+        description: string | null;
+        blog_id: number;
+        created_at: string;
+        updated_at: string;
+        posts: Post[];
+    };
 }
 
 export interface Pagination {
@@ -95,7 +116,10 @@ export const findPosts = async (): Promise<Post[]> => {
     return posts;
 };
 
-export const findPostBySlug = async (slug: string, posts?: Post[]): Promise<PostDetails | null> => {
+export const findPostBySlug = async (
+    slug: string,
+    posts?: Post[],
+): Promise<{ post: PostDetails; postSeries: MetaPostSeries | null } | null> => {
     if (typeof posts === "undefined") {
         posts = await findPosts();
     }
@@ -106,8 +130,8 @@ export const findPostBySlug = async (slug: string, posts?: Post[]): Promise<Post
         return null;
     }
 
-    const response = await fetchNimbusApi<{ data: PostDetails }>(`/posts/${post.id}`);
+    const response = await fetchNimbusApi<PostDetailsResponse>(`/posts/${post.id}`);
     const postDetails = response.data;
     postDetails.content = await parseBody(postDetails.content);
-    return postDetails;
+    return { post: postDetails, postSeries: response.meta_post_series };
 };

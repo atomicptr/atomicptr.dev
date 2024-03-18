@@ -8,15 +8,15 @@ export async function load(data): Promise<PostData> {
     const params = data.params;
     const parent = await data.parent();
 
-    const post = await findPostBySlug(params.slug, parent.posts);
+    const response = await findPostBySlug(params.slug, parent.posts);
 
-    if (!post) {
+    if (!response) {
         error(404, {
             message: "Not found",
         });
     }
 
     return {
-        post,
+        ...response,
     };
 }
