@@ -11,6 +11,7 @@
     import { gravatar } from "$lib/gravatar";
 
     import type { PostData } from "./post-types";
+    import PostPrevNextSwitcher from "$lib/components/PostPrevNextSwitcher.svelte";
 
     export let data: PostData;
 </script>
@@ -32,6 +33,25 @@
         description={data.post.description}
         image={data.post.promo_image}
     />
+
+    <link
+        rel="canonical"
+        href="{config.domainPrefix}/blog/{data.post.slug}"
+    />
+
+    {#if data.postSeries && data.postSeries.previous}
+        <link
+            rel="prev"
+            href="{config.domainPrefix}/blog/{data.postSeries.previous.slug}"
+        />
+    {/if}
+
+    {#if data.postSeries && data.postSeries.next}
+        <link
+            rel="next"
+            href="{config.domainPrefix}/blog/{data.postSeries.next.slug}"
+        />
+    {/if}
 </svelte:head>
 
 <header class="mb-4 lg:mb-6 not-format">
@@ -59,7 +79,9 @@
     {@html data.post.content}
 </div>
 
-<div class="flex justify-center gap-1">
+<PostPrevNextSwitcher postSeries={data.postSeries} />
+
+<div class="flex flex-wrap justify-center gap-1">
     {#each data.post.tags as tag}
         <a
             class="badge badge-primary hover:badge-secondary gap-2"
