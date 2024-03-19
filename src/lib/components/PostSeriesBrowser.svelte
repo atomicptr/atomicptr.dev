@@ -4,7 +4,7 @@
     export let post: PostDetails | null = null;
 
     const isBeforeCurrentPost = (p: Post) =>
-        post === null ? true : new Date(p.created_at) < new Date(post.created_at);
+        post === null ? true : new Date(p.publish_date) < new Date(post.publish_date);
 </script>
 
 {#if post && post.post_series}

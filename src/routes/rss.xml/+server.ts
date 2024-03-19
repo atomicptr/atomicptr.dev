@@ -8,16 +8,16 @@ interface ParsedPost {
     title: string;
     slug: string;
     content: string;
-    createdAt: Date;
+    publishDate: Date;
 }
 
 export async function GET() {
     const posts = await findPosts();
 
     const parsedPosts: ParsedPost[] = await Promise.all(
-        posts.slice(0, config.rssMaxNumberOfPosts).map(async ({ title, content, slug, created_at }) => ({
+        posts.slice(0, config.rssMaxNumberOfPosts).map(async ({ title, content, slug, publish_date }) => ({
             content: await parseBody(content),
-            createdAt: new Date(created_at),
+            publishDate: new Date(publish_date),
             slug,
             title,
         })),
@@ -51,7 +51,7 @@ const rss = (posts: ParsedPost[]): string => `<rss xmlns:atom="http://www.w3.org
             <![CDATA[<a href='${config.domainPrefix}/blog/${post.slug}/'>Check out this post on my blog: ${config.blogTitle}</a><br/><br/><h1>${post.title}</h1>${post.content}]]>
           </description>
           <link>${config.domainPrefix}/blog/${post.slug}/</link>
-          <pubDate>${post.createdAt.toUTCString()}</pubDate>
+          <pubDate>${post.publishDate.toUTCString()}</pubDate>
         </item>
       `,
         )

@@ -63,7 +63,7 @@
     >
         <p>
             <DateJS
-                timestamp={data.post.created_at}
+                timestamp={data.post.publish_date}
                 format="MMM. DD, YYYY"
             />
         </p>

@@ -6,7 +6,7 @@
 
     export let posts: Post[];
 
-    const groupedByYear = groupBy(posts, post => new Date(post.created_at).getFullYear());
+    const groupedByYear = groupBy(posts, post => new Date(post.publish_date).getFullYear());
     const groupedByYearArray = Object.keys(groupedByYear)
         .map(year => ({ posts: groupedByYear[year as unknown as keyof typeof groupedByYear], year }))
         .sort((a, b) => a.year.localeCompare(b.year))
@@ -23,7 +23,7 @@
         <div class="w-full flex mb-4 items-center">
             <div class="min-w-16 text-gray-500">
                 <DateJS
-                    timestamp={new Date(post.created_at)}
+                    timestamp={new Date(post.publish_date)}
                     format="MMM. DD"
                 />
             </div>

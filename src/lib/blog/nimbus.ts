@@ -27,8 +27,7 @@ export interface Post {
     post_series_id?: number;
     author_id: number;
     promo_image: string;
-    created_at: string;
-    updated_at: string;
+    publish_date: string;
     tags: {
         id: number;
         title: string;
@@ -58,8 +57,7 @@ export interface PostDetails extends Post {
         slug: string;
         description: string | null;
         blog_id: number;
-        created_at: string;
-        updated_at: string;
+        publish_date: string;
         posts: Post[];
     };
 }
