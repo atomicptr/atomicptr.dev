@@ -1,4 +1,7 @@
 <script lang="ts">
+    import { faRss } from "@fortawesome/free-solid-svg-icons";
+    import Fa from "svelte-fa";
+
     import HeaderMetaData from "$lib/components/HeaderMetaData.svelte";
     import PostList from "$lib/components/PostList.svelte";
     import config from "$lib/config";
@@ -23,5 +26,18 @@
 
     <HeaderMetaData />
 </svelte:head>
+
+<div class="flex justify-end">
+    <a
+        class="btn btn-ghost"
+        href="/tags/{data.tag}/rss.xml"
+        target="_blank"
+    >
+        <Fa icon={faRss} />
+        <span>
+            #{data.tag}
+        </span>
+    </a>
+</div>
 
 <PostList posts={data.posts} />

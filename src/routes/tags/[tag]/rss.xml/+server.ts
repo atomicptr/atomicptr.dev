@@ -3,7 +3,7 @@ import { createResponse } from "$lib/rss";
 
 export const prerender = true;
 
-export async function GET() {
+export async function GET({ params }) {
     const posts = await findPosts();
-    return createResponse(posts);
+    return createResponse(posts.filter(post => post.tags.some(tag => tag.slug === params.tag)));
 }
