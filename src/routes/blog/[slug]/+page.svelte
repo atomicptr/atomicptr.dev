@@ -41,6 +41,12 @@
         href="{config.domainPrefix}/blog/{data.post.slug}"
     />
 
+    <link
+        rel="preload"
+        as="image"
+        href={gravatar(data.post.author.email)}
+    />
+
     {#if data.postSeries && data.postSeries.previous}
         <link
             rel="prev"

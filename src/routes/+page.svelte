@@ -23,11 +23,7 @@
     <div class="hero-content text-center text-neutral-content">
         <div class="max-w-xl">
             <h1 class="mb-5 text-5xl font-bold">Hello I'm <span class="text-primary">Christopher</span>!</h1>
-            <p class="mb-5">
-                I'm a Software Engineer from Germany 🇩🇪,<br />
-                Linux and open source enthusiast,<br />
-                BJJ practitioner and an avid language learner.
-            </p>
+            <p class="mb-5">👷🏻‍♂️ Software Artisan・🥋 BJJ Practioner・🐧 Linux Enthusiast・🇩🇪🏴󠁧󠁢󠁥󠁮󠁧󠁿🇯🇵</p>
         </div>
     </div>
 </div>
