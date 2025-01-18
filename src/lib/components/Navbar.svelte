@@ -1,11 +1,12 @@
 <script lang="ts">
     import { faGithub, faXTwitter } from "@fortawesome/free-brands-svg-icons";
-    import { faEllipsis, faRss } from "@fortawesome/free-solid-svg-icons";
+    import { faEllipsis, faHeart, faHome, faLayerGroup, faNewspaper, faRss } from "@fortawesome/free-solid-svg-icons";
     import { derived } from "svelte/store";
     import Fa from "svelte-fa";
 
     import { page } from "$app/stores";
     import Logo from "$lib/components/Logo.svelte";
+    import config from "$lib/config";
 
     enum ActiveArea {
         Home,
@@ -44,7 +45,7 @@
     <div class="navbar-end hidden lg:flex">
         <a
             class="btn btn-ghost btn-circle"
-            href="https://github.com/atomicptr"
+            href={config.githubUrl}
             target="_blank"
             title="Github"
         >
@@ -55,11 +56,19 @@
         </a>
         <a
             class="btn btn-ghost text-xl"
-            href="https://x.com/atomicptr"
+            href={config.xUrl}
             target="_blank"
             title="X"
         >
             <Fa icon={faXTwitter} />
+        </a>
+        <a
+            class="btn btn-ghost text-xl"
+            href={config.supportUrl}
+            target="_blank"
+            title="Support Me"
+        >
+            <Fa icon={faHeart} />
         </a>
         <a
             class="btn btn-ghost text-xl"
@@ -85,8 +94,54 @@
                 tabindex="-1"
                 class="menu dropdown-content z-[1] p-2 shadow bg-base-100 rounded-box w-52 mt-4"
             >
-                <li><a href="/">Home</a></li>
-                <li><a href="/blog">Blog</a></li>
+                <li>
+                    <a href="/">
+                        <Fa icon={faHome} />
+                        Home
+                    </a>
+                </li>
+                <li>
+                    <a href="/blog">
+                        <Fa icon={faLayerGroup} />
+                        Blog
+                    </a>
+                </li>
+                <li>
+                    <a
+                        href={config.githubUrl}
+                        target="_blank"
+                    >
+                        <Fa icon={faGithub} />
+                        Github
+                    </a>
+                </li>
+                <li>
+                    <a
+                        href={config.xUrl}
+                        target="_blank"
+                    >
+                        <Fa icon={faXTwitter} />
+                        x.com
+                    </a>
+                </li>
+                <li>
+                    <a
+                        href={config.supportUrl}
+                        target="_blank"
+                    >
+                        <Fa icon={faHeart} />
+                        Support Me
+                    </a>
+                </li>
+                <li>
+                    <a
+                        href="/rss.xml"
+                        target="_blank"
+                    >
+                        <Fa icon={faRss} />
+                        RSS Feed
+                    </a>
+                </li>
             </ul>
         </div>
     </div>
