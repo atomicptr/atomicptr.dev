@@ -14,6 +14,7 @@
     import PostLinksList from "$lib/components/PostLinksList.svelte";
     import { fixPromoImage } from "$lib/image.js";
     import type { PageProps } from "./$types";
+    import SupportMe from "$lib/components/SupportMe.svelte";
 
     const { data }: PageProps = $props();
 </script>
@@ -86,6 +87,8 @@
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html data.post.content}
 </div>
+
+<SupportMe />
 
 <PostLinksList post={data.post} />
 
