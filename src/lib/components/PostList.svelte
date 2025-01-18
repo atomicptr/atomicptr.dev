@@ -4,7 +4,11 @@
     import type { Post } from "$lib/blog/nimbus";
     import DateJS from "$lib/components/DateJS.svelte";
 
-    export let posts: Post[];
+    interface Props {
+        posts: Post[];
+    }
+
+    const { posts }: Props = $props();
 
     const groupedByYear = groupBy(posts, post => new Date(post.publish_date).getFullYear());
     const groupedByYearArray = Object.keys(groupedByYear)

@@ -10,12 +10,12 @@
     import config from "$lib/config";
     import { gravatar } from "$lib/gravatar";
 
-    import type { PostData } from "./post-types";
     import PostPrevNextSwitcher from "$lib/components/PostPrevNextSwitcher.svelte";
     import PostLinksList from "$lib/components/PostLinksList.svelte";
     import { fixPromoImage } from "$lib/image.js";
+    import type { PageProps } from "./$types";
 
-    export let data: PostData;
+    const { data }: PageProps = $props();
 </script>
 
 <svelte:head>

@@ -2,10 +2,9 @@
     import HeadImages from "$lib/components/HeaderMetaData.svelte";
     import PostList from "$lib/components/PostList.svelte";
     import config from "$lib/config";
+    import type { PageProps } from "./$types";
 
-    import type { BlogData } from "./blog-types";
-
-    export let data: BlogData;
+    const { data }: PageProps = $props();
 </script>
 
 <svelte:head>

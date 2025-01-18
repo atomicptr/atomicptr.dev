@@ -1,11 +1,10 @@
 import { findPosts } from "$lib/blog/nimbus";
+import type { LayoutServerLoad } from "./$types";
 
-import type { BlogData } from "./blog-types";
-
-export async function load(): Promise<BlogData> {
+export const load: LayoutServerLoad = async () => {
     const posts = await findPosts();
 
     return {
         posts,
     };
-}
+};

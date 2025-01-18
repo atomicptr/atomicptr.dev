@@ -1,8 +1,12 @@
 <script lang="ts">
     import dayjs from "dayjs";
 
-    export let timestamp: Date | string | number | null | undefined;
-    export let format: string;
+    interface Props {
+        timestamp?: Date | string | number | null | undefined;
+        format: string;
+    }
+
+    const { timestamp, format }: Props = $props();
 </script>
 
 {#if timestamp}

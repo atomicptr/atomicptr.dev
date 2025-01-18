@@ -23,7 +23,7 @@
     <div class="hero-content text-center text-neutral-content">
         <div class="max-w-xl">
             <h1 class="mb-5 text-5xl font-bold">Hello I'm <span class="text-primary">Christopher</span>!</h1>
-            <p class="mb-5">👷🏻‍♂️ Software Artisan・🥋 BJJ Practioner・🐧 Linux Enthusiast・🇩🇪🏴󠁧󠁢󠁥󠁮󠁧󠁿🇯🇵</p>
+            <p class="mb-5">husband・software artisan・ 🇩🇪 🏴󠁧󠁢󠁥󠁮󠁧󠁿 🇯🇵・bjj/judo・🐧</p>
         </div>
     </div>
 </div>

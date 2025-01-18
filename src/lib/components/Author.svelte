@@ -1,8 +1,15 @@
 <script lang="ts">
-    export let username: string;
-    export let url: string | null = null;
-    export let avatarUrl: string;
-    export let subline: string | null = null;
+    import type { Snippet } from "svelte";
+
+    interface Props {
+        username: string;
+        url?: string;
+        avatarUrl: string;
+        subline?: string;
+        children: Snippet;
+    }
+
+    const { username, url, avatarUrl, subline, children }: Props = $props();
 </script>
 
 <address class="flex items-center mb-6 not-italic">
@@ -31,7 +38,7 @@
                 </p>
             {/if}
 
-            <slot />
+            {@render children()}
         </div>
     </div>
 </address>

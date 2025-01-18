@@ -1,14 +1,19 @@
 import { error } from "@sveltejs/kit";
 
-import { findPostBySlug } from "$lib/blog/nimbus";
+import { findPostBySlug, findPosts } from "$lib/blog/nimbus";
 
-import type { PostData } from "./post-types";
+import type { EntryGenerator, PageServerLoad } from "./$types";
 
-export async function load(data): Promise<PostData> {
-    const params = data.params;
-    const parent = await data.parent();
+export const entries: EntryGenerator = async () => {
+    const posts = await findPosts();
 
-    const response = await findPostBySlug(params.slug, parent.posts);
+    return posts.map(({ id, slug }) => ({ id, slug }));
+};
+
+export const load: PageServerLoad = async ({ params, parent }) => {
+    const parentData = await parent();
+
+    const response = await findPostBySlug(params.slug, parentData.posts);
 
     if (!response) {
         error(404, {
@@ -19,4 +24,4 @@ export async function load(data): Promise<PostData> {
     return {
         ...response,
     };
-}
+};

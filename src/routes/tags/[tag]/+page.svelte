@@ -5,10 +5,9 @@
     import HeaderMetaData from "$lib/components/HeaderMetaData.svelte";
     import PostList from "$lib/components/PostList.svelte";
     import config from "$lib/config";
+    import type { PageProps } from "./$types";
 
-    import type { TagData } from "../tag-types";
-
-    export let data: TagData;
+    const { data }: PageProps = $props();
 </script>
 
 <svelte:head>

@@ -4,7 +4,11 @@
 
     import type { PostDetails } from "$lib/blog/nimbus";
 
-    export let post: PostDetails;
+    interface Props {
+        post: PostDetails;
+    }
+
+    const { post }: Props = $props();
 </script>
 
 {#if post.links && post.links.length > 0}
