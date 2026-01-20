@@ -1,0 +1,52 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+@plugin "daisyui/theme" {
+  name: "mocha-lavender";
+  default: true;
+  prefersdark: true;
+  color-scheme: dark;
+
+  --color-primary: #b4befe;
+  --primary-content: #11111b;
+
+  --color-secondary: #f5c2e7;
+  --color-accent: #94e2d5;
+
+  --color-neutral: #313244;
+  --neutral-content: #cdd6f4;
+
+  --color-base-100: #1e1e2e;
+  --color-base-200: #181825;
+  --color-base-300: #11111b;
+  --base-content: #cdd6f4;
+
+  --color-info: #89b4fa;
+  --color-success: #a6e3a1;
+  --color-warning: #f9e2af;
+  --color-error: #f38ba8;
+
+  --depth: 1;
+  --noise: 0.05;
+}
+
+.blog-content h1 {
+    @apply text-3xl font-semibold mt-12 mb-6
+}
+
+
+.blog-content h2 {
+    @apply text-2xl font-semibold mt-6 mb-6
+}
+
+.blog-content h3 {
+    @apply text-xl font-semibold mt-3 mb-3
+}
+
+.blog-content h4 {
+    @apply text-lg font-semibold mt-3 mb-3
+}
+
+.blog-content a {
+    @apply link-primary font-semibold;
+}
