@@ -1,0 +1,405 @@
+---
+title: Defold Action RPG - Porting the popular Godot tutorial series part 4
+date: 2024-02-03
+links:
+    - name: Source Code
+      url: "https://github.com/atomicptr/DefoldActionRPG"
+tags:
+    - defold
+    - gamedev
+    - lua
+    - tutorial
+prev: defold-action-rpg-porting-the-popular-godot-tutorial-series-part-3
+next: defold-action-rpg-porting-the-popular-godot-tutorial-series-part-5
+---
+
+Welcome to part 4 of the series where I port a popular Godot tutorial to Defold
+
+## Video 11 - Attacking things with Hitboxes
+
+First we create a hitbox for the grass and set the group to "hitable" and the mask to "player\_hit" and "enemy\_hit" to make both players and enemies being able to hit the grass
+
+![01](https://github.com/atomicptr/atomicptr.dev/assets/674705/50d32830-bb4a-4569-bf7e-33d8fa545177)
+
+and also do the same for the player, a hitbox with the group "hitable" and the mask "enemy\_hit".
+
+In the video Heartbeast attaches the swords hitbox to the swing of the sword within the animation which is not something we can do in Defold so instead we spawn a small invisible game object while our attack animation is playing which acts as our hit proxy. Like a bullet just that it does not move.
+
+First we add a factory component to the player and call it "sword\_hit\_factory" which will spawn the new game object
+
+Also need to add it to attack_state:
+
+```lua
+local sword_hit_position = go.get_position() + (self.look_direction * 10)
+factory.create("#sword_hit_factory", sword_hit_position)
+```
+
+I created the GO and added a hitbox and a test sprite to see if I actually place it correctly:
+
+![02](https://github.com/atomicptr/atomicptr.dev/assets/674705/1c9089ab-4bb7-4315-b977-c2e3daf57fc2)
+
+Next we attach a script to the sword hit effect that deletes the object again a few frames later that could look like this:
+
+```lua
+local frame_lifetime = 24
+
+---@class SwordHitController
+---@field frames integer
+
+---@param self SwordHitController
+function init(self)
+    self.frames = 0
+end
+
+function update(self, _dt)
+    self.frames = self.frames + 1
+
+    if self.frames >= frame_lifetime then
+        go.delete()
+    end
+end
+```
+
+aka we delete the object again within one frame which might be a bit too short but we'll see!
+
+Now its time to add this functionality to the grass, first we remove the old code which handled input on the grass (dont really need that lol) and replace it with an on\_message that handles the grass cutting:
+
+```lua
+function on_message(self, message_id, message, sender)
+    if message_id == hash("trigger_response") then
+        spawn_animation()
+        go.delete()
+    end
+end
+
+function spawn_animation()
+    factory.create("/grass_effect_spawner#factory", go.get_position())
+end
+```
+
+The only problem now is that we spawn the object only correctly when facing upwards which we can solve by rotating the image when facing sideways. The final sword hit spawn function should look something like this:
+
+```lua
+---@param direction vector3
+function process_sword_hit(direction)
+    local offset = 20
+
+    -- top is a bit further away so we dont need 20
+    if direction == xvmath.up() then
+        offset = 10
+    end
+
+    local sword_hit_position = go.get_position() + (direction * offset)
+    local id = factory.create("#sword_hit_factory", sword_hit_position)
+
+    if direction == xvmath.left() or direction == xvmath.right() then
+        go.set_rotation(vmath.quat_rotation_z(math.rad(90)), id)
+    end
+end
+```
+
+![03](https://github.com/atomicptr/atomicptr.dev/assets/674705/6023811f-0126-4fd8-92bd-e6d817d9ba2d)
+
+and lastly we remove the red box again :)
+
+## Video 12 - They see me rollin'
+
+In this part we are going to finally add the roll state. First we define the roll animations in our animation tree:
+
+```lua
+    self.anim_tree:blendspace("roll", {
+        { animation = "roll_up",    value = xvmath.up() },
+        { animation = "roll_down",  value = xvmath.down() },
+        { animation = "roll_left",  value = xvmath.left() },
+        { animation = "roll_right", value = xvmath.right() },
+    })
+```
+
+and then add a transition to it:
+
+```lua
+    if action.pressed and action_id == hash("roll") then
+        self.state = STATE_ROLL
+    end
+```
+
+and lastly adding the code into the roll state function which is mostly the same as attack_state with the important difference that we actually set a velocity and update (move) stuff while the animation is playing.
+
+```lua
+---@param self PlayerController
+---@param dt float
+function roll_state(self, dt)
+    move(self.velocity * dt)
+
+    if self.animation_playing then
+        return
+    end
+
+    self.animation_playing = true
+    self.velocity = self.look_direction * ROLL_SPEED
+
+    self.anim_tree:play("roll")
+
+    -- see attack state at what type of hack we do here
+    self.anim_tree:update(self.input_vector, function(name)
+        sprite.play_flipbook("#sprite", hash(name), function(self, message_id)
+            if message_id ~= hash("animation_done") then
+                return
+            end
+
+            self.animation_playing = false
+            self.velocity = self.velocity * 0.8
+
+            self.anim_tree:play("idle")
+            self.state = STATE_MOVE
+        end)
+    end)
+end
+```
+
+and thats the roll animation
+
+## Video 13 - Knockback and the Enemy Bat
+
+First we set up the bat game object:
+
+![04](https://github.com/atomicptr/atomicptr.dev/assets/674705/101d2961-6e07-4622-8082-608060476254)
+
+next we write some code, essentially when the player hits the target it gets knocked back away from the player. In the video Heartbeast chose to use the player direction for the knockback vector we will however calculate the direction from where the player was hit:
+
+```lua
+local xvmath = require("modules.xvmath")
+
+local KNOCKBACK_STRENGTH = 120
+local FRICTION = 200
+
+function init(self)
+	self.velocity = xvmath.zero()
+end
+
+function on_message(self, message_id, message, sender)
+	local is_hitbox = message.own_group == hash("hitable")
+
+	if is_hitbox and message_id == hash("trigger_response") then
+		local other_pos = go.get_position(message.other_id)
+
+		local direction = vmath.normalize(go.get_position() - other_pos)
+		direction.z = 0
+
+		self.velocity = direction * KNOCKBACK_STRENGTH
+	end
+end
+
+function fixed_update(self, dt)
+	self.velocity = xvmath.move_toward(self.velocity, xvmath.zero(), FRICTION * dt)
+	move(self.velocity * dt)
+end
+
+---@param movement vector3
+function move(movement)
+	local position = go.get_position()
+	position = position + movement
+	go.set_position(position)
+end
+```
+
+and with this we have a bat that can be knocked around!
+
+## Video 14 - Enemy Stats
+
+In this part we are going to add HP and damage to the game, lets first add the damage property to the player controller
+
+```lua
+go.property("sword_damage", 1)
+```
+
+next we modify the sword hit controller to apply a take\_damage message to the hit object via:
+
+```lua
+function on_message(self, message_id, message, sender)
+    msg.post(message.other_id, hash("take_damage"), { damage = go.get("/player#player_controller", "sword_damage") })
+end
+```
+
+**Note**: We read the damage property here directly from the player controller component
+
+Now we need something that can actually handle the damage for this lets write a health component
+
+```lua
+---@class Health
+---@field health integer
+---@field max_health integer
+---@field iframe integer
+---@field iframe_duration integer
+
+go.property("max_health", 1)
+go.property("iframe_duration", 30)
+
+---@param self Health
+function init(self)
+    self.health = self.max_health
+    self.iframe = 0
+end
+
+---@param self Health
+---@param message_id userdata
+---@param message any
+---@param sender userdata
+function on_message(self, message_id, message, sender)
+    local iframe_active = self.iframe > 0
+
+    if not iframe_active and message_id == hash("take_damage") then
+        local damage = 1
+
+        if message.damage then
+            damage = message.damage
+        end
+
+        self.health = self.health - damage
+        self.iframe = self.iframe_duration
+    end
+end
+
+---@param self Health
+---@param dt float
+function update(self, dt)
+    local iframe_active = self.iframe > 0
+
+    if iframe_active then
+        self.iframe = self.iframe - 1
+    end
+
+    if self.health <= 0 then
+        msg.post(".", "on_death")
+    end
+end
+```
+
+If we receive the "take\_damage" message we subtract our health by 1 (or the amount given) and enable a 30 frame iframe duration to prevent the game from triggering one damage source multiple times instantly. If no health is remaining we emit a "on\_death" message to the current game object.
+
+Now we can add this component to the bat and set the health value to 3
+
+![05](https://github.com/atomicptr/atomicptr.dev/assets/674705/d1f63a38-b390-4770-b19b-63bf21e4b779)
+
+Lastly in the bat controller we handle said on death message by deleting the object:
+
+```lua
+    if message_id == hash("on_death") then
+        go.delete()
+    end
+```
+
+and with that we conclude video 14.
+
+## Video 15 - Enemy Death Effect
+
+Similar to the grass death effect we add a enemy effect spawner game object to the level with a factory referencing to a new game object which will again contain a sprite and a script. Since the code for the script is exactly the same as for grass effect might as well reuse that (and rename it to effect controller I guess).
+
+And lastly we create the animation just before our little friend dies:
+
+```lua
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    if message_id == hash("on_death") then
+        spawn_death_effect()
+        go.delete()
+    end
+end
+
+-- ...
+
+function spawn_death_effect()
+    factory.create("/enemy_death_effect_spawner#factory", go.get_position())
+end
+```
+
+![06](https://github.com/atomicptr/atomicptr.dev/assets/674705/c6b7e355-cf7a-4775-b05b-62bce89fe117)
+
+## Video 16 - Smarter bats
+
+In this part we will start adding AI to the bats.
+
+First off like the last part we will add a new effect (the hit effect) lets start by creating a game object with a factory again and then referencing our hit effect (that we also just created like in the Video 15 part)
+
+![07](https://github.com/atomicptr/atomicptr.dev/assets/674705/b26c809b-cd66-44e4-b88d-c337c90e8e5d)
+
+First we add a new collision object called detection zone that is a big circle:
+
+![08](https://github.com/atomicptr/atomicptr.dev/assets/674705/7e4ed45e-2097-4f01-97c2-d158d3c57963)
+
+and then we add a new component called "can see player" that will utilize this detection zone to help us find the player
+
+```lua
+---@class CanSeePlayer
+---@field seen_player_frames integer
+---@field has_seen_player boolean
+---@field remember_player_duration_frames integer
+
+go.property("remember_player_duration_frames", 60)
+
+---@param self CanSeePlayer
+function init(self)
+    self.seen_player_frames = 0
+    self.has_seen_player = false
+end
+
+---@param self CanSeePlayer
+---@param message_id userdata
+---@param message any
+---@param sender userdata
+function on_message(self, message_id, message, sender)
+    if message.other_group == hash("player") then
+        self.seen_player_frames = self.remember_player_duration_frames
+        self.has_seen_player = true
+        msg.post(".", "found_player")
+    end
+
+    if self.seen_player_frames > 0 then
+        self.seen_player_frames = self.seen_player_frames - 1
+    end
+
+    if self.seen_player_frames <= 0 and self.has_seen_player then
+        self.has_seen_player = false
+        msg.post(".", "lost_player")
+    end
+end
+```
+
+and now we extend the bat controller to include the states idle, wander and chase. If we find the player we start chasing him and if we lost him we go back to idle for now:
+
+```lua
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    if message_id == hash("found_player") then
+        self.state = STATE_CHASE
+    end
+
+    if message_id == hash("lost_player") then
+        self.state = STATE_IDLE
+    end
+
+    -- ...
+end
+
+---@param self BatController
+---@param dt float
+function idle_state(self, dt)
+    self.velocity = xvmath.move_toward(self.velocity, xvmath.zero(), FRICTION * dt)
+end
+
+---@param self BatController
+---@param dt float
+function chase_state(self, dt)
+    local player_position = go.get_position("/player")
+    local direction = vmath.normalize(player_position - go.get_position())
+    self.velocity = xvmath.move_toward(self.velocity, direction * MAX_SPEED, ACCELERATION * dt)
+end
+```
+
+This means the bat is now chasing us as you can see here:
+
+![09](https://github.com/atomicptr/atomicptr.dev/assets/674705/f0a5476b-8503-4617-a0bb-8d738d24ff1c)
+
+And with that we have a chasing bat and this also concludes part 4! See you again for part 5 which will probably also be the last part :)

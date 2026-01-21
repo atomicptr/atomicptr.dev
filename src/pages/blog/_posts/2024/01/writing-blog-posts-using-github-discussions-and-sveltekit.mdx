@@ -1,0 +1,136 @@
+---
+title: Writing blog  posts using Github Discussions and SvelteKit
+date: 2024-01-09
+tags:
+    - javascript
+    - svelte
+    - webdev
+---
+
+I wanted to finally (once again?) get myself to actually write some articles and instead of using something normal like WordPress I had to create a custom blog system once again like a madman! I also really wanted to make something using [SvelteKit](https://kit.svelte.dev/) and this seemed like a good fit!
+
+## Where do I store the data?
+
+One very important question right off the bat was "Where do I store the post data for free?" while SvelteKit has a server component I was primarily interested in using it as a fancy static site generator and compared to other options such as Hugo Markdown files seemed like an obvious choice here. The only problem is editing files in a git repository to write a blog post never seemed like a particularly well designed user experience to me. While playing around with some ideas like using GitHub Issues I stumbled upon [another madman called Rigo who was using GitHub Discussions for his blog system](https://reego.dev/blog/using-github-discussions-as-your-blog-engine/) and was so impressed that I wanted to do so as well!...GitHub Discussions it is.
+
+## Why GitHub Discussions
+
+Not only does it have a powerful API but also comes along with a lot of other things one would usually associate with a decent blog system like:
+
+* (Markdown) Editor with previews
+* Ability for users to comment
+* Reactions :+1:
+* A mobile app (GitHub Mobile!)
+* Tags (via labels), although I am not using this currently
+
+It is also completely free to use!
+
+## Implementation
+
+As mentioned previously I wanted to do something with SvelteKit so this was an obvious choice here. SvelteKit allows you to write a website structure with Svelte and create a static website out of this with dynamic data pulled on build time, so the idea was when building the website I pull all the GitHub Discussion posts and create a listing and details pages from it.
+
+Since the GitHub Discussion API is using GraphqL the first thing I needed was a query:
+
+```graphql
+query {
+    repository(owner: "atomicptr", name: "atomicptr.dev") {
+        discussions(first: 100, orderBy: { field: CREATED_AT, direction: DESC }) {
+            pageInfo {
+                startCursor
+                hasNextPage
+                endCursor
+            }
+            edges {
+                cursor
+                node {
+                    ... on Discussion {
+                        id
+                        title
+                        body
+                        createdAt
+                        number
+                        author {
+                            login
+                            url
+                            avatarUrl
+                        }
+                        labels(first: 100) {
+                            nodes {
+                                name
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+This helps us to get the first 100 discussion posts from the user: **atomicptr** (Hey, thats me!) and the repository **atomicptr.dev** with whatever data seemed necessary (ID, title, body, created at date, author info, labels).
+
+First we write a function that actually pulls ALL of the posts:
+
+```ts
+async function findPosts(): Promise<Post[]> {
+    const posts: Post[] = [];
+
+    // realistically I doubt i will ever write a hundred posts...
+    const max = 100;
+
+    let after = undefined;
+
+    const running = true;
+
+    // since the API is paginated lets loop over it until we got everything... possibly overengineered as again
+    // I will likely not write a 100 posts
+    while (running) {
+        const result = (await this.client.query(queryFindPosts, {
+            after,
+            limit: max,
+            owner: config.githubDiscussions.username,
+            repository: config.githubDiscussions.repository,
+        })) as DiscussionsQueryApiResponse;
+
+        // some stupid checks to make the typescript compiler happy
+        if (!result.data) {
+            break;
+        }
+
+        if (!result.data.repository.discussions) {
+            break;
+        }
+
+        if (!result.data.repository.discussions.edges) {
+            break;
+        }
+
+        // push them to the list after being transformed, more on that later...
+        for (const node of result.data.repository.discussions.edges) {
+            posts.push(await this.parsePost(node.node));
+        }
+
+        const last = posts[posts.length - 1];
+
+        after = last.createdAt.toISOString();
+
+        if (result.data.repository.discussions.edges.length < max) {
+            break;
+        }
+    }
+
+    return posts;
+}
+```
+
+This now lets us render the post list (which at the current state is still kinda shit)
+
+![image](https://github.com/atomicptr/atomicptr.dev/assets/674705/3619ea5f-63df-4292-b4e4-955494ecd358)
+
+Similar to Rigo I decided to use a front matter part in the Markdown to set some variables although I chose to have the slug primarily generated from the title because the chance of me changing the title is low anyway and the chance of me creating another post with the same title is basically 0.
+
+The front matter gets extracted and the remaining Markdown is parsed by Remark to render it later on the page:
+
+![image](https://github.com/atomicptr/atomicptr.dev/assets/674705/69fffea4-7c85-4d0c-b160-ca6576abae39)
+
+And thats it we have a blog!

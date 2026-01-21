@@ -29,7 +29,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             basic: {
                 title: title,
                 type: "article",
-                image: image,
+                image: image ?? `${new URL("/social.jpg", Astro.site)}`,
             }
         }}
         twitter={{

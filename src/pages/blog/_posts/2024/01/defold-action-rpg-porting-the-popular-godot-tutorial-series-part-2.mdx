@@ -1,0 +1,187 @@
+---
+title: Defold Action RPG - Porting the popular Godot tutorial series part 2
+date: 2024-01-14
+links:
+    - name: Source Code
+      url: "https://github.com/atomicptr/DefoldActionRPG"
+tags:
+    - defold
+    - gamedev
+    - lua
+    - tutorial
+prev: defold-action-rpg-porting-the-popular-godot-tutorial-series-part-1
+next: defold-action-rpg-porting-the-popular-godot-tutorial-series-part-3
+---
+
+Welcome to part 2 of this series!
+
+## Video 3 - Movement and collisions
+
+Since I am progressing parallel to Heartbeasts videos I also end up adding the same bugs as him so we gotta fix them now
+
+```lua
+-- updating the variables
+local ACCELERATION = 500
+local MAX_SPEED = 80
+local FRICTION = 500
+
+-- and also using move_toward for acceleration...
+
+---@param self PlayerController
+---@param dt float
+function update(self, dt)
+    if self.input_vector == vmath.vector3() then
+        self.velocity = xvmath.move_toward(self.velocity, vmath.vector3(), FRICTION * dt)
+    else
+        self.velocity = xvmath.move_toward(self.velocity, self.input_vector * MAX_SPEED, ACCELERATION * dt)
+    end
+
+    move(self.velocity * dt)
+end
+```
+
+Next lets tackle collisions...
+
+And here I thought just slapping a collision object onto both game objects was enough but turns out you also have to disable gravity and I opted to remove friction etc. from the player collision object since we do this ourselves:
+
+![001](https://github.com/atomicptr/atomicptr.dev/assets/674705/631fa824-41ad-4cc8-b4f4-c5b8eace4ecb)
+
+I also moved the player to z-index 1 so that he does not get rendered behind the bush
+
+![002](https://github.com/atomicptr/atomicptr.dev/assets/674705/bebe91bf-35ad-4449-a5b0-f364e1e1105b)
+
+The only missing part
+
+And thats it for video 3!
+
+## Video 4 - Extract it into scenes and do the Y Sort
+
+[Video 4](https://www.youtube.com/watch?v=UfKMgHbaGow) extracts the player and the bush into scenes, so we will do something similar by extracting the bush and player game object.
+
+That was the easy part, next we have to do Y-Sorting which... Defold does not seem to support out of the box :(
+
+So we just implement our own really naive y-sort component/script which sets the current z coordinate of the associated game object to a value between 0 and 1
+
+```lua
+function update()
+    local pos = go.get_position()
+    pos.z = -pos.y * 0.00001
+    go.set_position(pos)
+end
+```
+
+![003](https://github.com/atomicptr/atomicptr.dev/assets/674705/02a8a285-4d2b-4cd6-8d16-4b51e0c2e16d)
+
+## Video 5 - Animations
+
+This mostly boiled down to playing the animations when the input vector is modified as unlike in Godot calling play animation repeatedly does not seem to work as expected in Defold as it replays the animation every time.
+
+```lua
+    -- ...
+
+    if action.pressed and action_id == hash("move_up") then
+        self.input_vector.y = 1
+        sprite.play_flipbook("#sprite", hash("walk_up"))
+    elseif action.pressed and action_id == hash("move_down") then
+        self.input_vector.y = -1
+        sprite.play_flipbook("#sprite", hash("walk_down"))
+    end
+
+    if action.pressed and action_id == hash("move_left") then
+        self.input_vector.x = -1
+        sprite.play_flipbook("#sprite", hash("walk_left"))
+    elseif action.pressed and action_id == hash("move_right") then
+        self.input_vector.x = 1
+        sprite.play_flipbook("#sprite", hash("walk_right"))
+    end
+
+    -- ...
+```
+
+I also added a few more than I was supposed to do oups :).
+
+Lastly when the character comes to a still stand we want to play the idle animation:
+
+```lua
+function update(self, dt)
+    if self.input_vector == vmath.vector3() then
+        sprite.play_flipbook("#sprite", hash("idle_right"))
+        self.velocity = xvmath.move_toward(self.velocity, vmath.vector3(), FRICTION * dt)
+    else
+
+    -- ...
+```
+
+## Video 6 - Animations in all directions without the animation tree :(
+
+As Defold does not have a fancy animation tree we have to do this manually. First we need to capture the last look direction for that I created some helper functions into xvmath:
+
+```lua
+---@return vector3
+function M.up()
+    return vmath.vector3(0, 1, 0)
+end
+
+---@return vector3
+function M.down()
+    return vmath.vector3(0, -1, 0)
+end
+
+---@return vector3
+function M.left()
+    return vmath.vector3(-1, 0, 0)
+end
+
+---@return vector3
+function M.right()
+    return vmath.vector3(1, 0, 0)
+end
+
+---@return vector3
+function M.zero()
+    return vmath.vector3(0, 0, 0)
+end
+```
+
+and added this function to the player controller:
+
+```lua
+---@param self PlayerController
+function reset_animation(self)
+    if self.look_direction == xvmath.up() then
+        sprite.play_flipbook("#sprite", hash("idle_up"))
+    elseif self.look_direction == xvmath.down() then
+        sprite.play_flipbook("#sprite", hash("idle_down"))
+    elseif self.look_direction == xvmath.left() then
+        sprite.play_flipbook("#sprite", hash("idle_left"))
+    elseif self.look_direction == xvmath.right() then
+        sprite.play_flipbook("#sprite", hash("idle_right"))
+    end
+end
+```
+
+![004](https://github.com/atomicptr/atomicptr.dev/assets/674705/586f6b57-df75-4842-9cf2-5ea30cfcbe6f)
+
+And thats video 6!
+
+## Video 7 - Background Grass and the dirt path
+
+This one starts super tricky as I can't just make a Sprite scale easily as the background image (as far as I can see) so instead I opted into using a Tilemap. This also brought with it another problem though as Defold only allows you to use images from a single tile source and therefore only a single image so I had to create a custom tile sheet to make this work!
+
+![005](https://github.com/atomicptr/atomicptr.dev/assets/674705/a32629ac-5e48-474a-a4c0-09ac9c705838)
+
+Autotile is also not a thing in Defold so we have to create the paths manually. The tilemap is a lot more limited than expected so I'd probably recommend using Tiled or LDtk for this instead in a normal project. For this limited project we will try to make do with what we have though!
+
+Next problem we can not really see what is on the layer without setting the Z index of the layer but even doing so does not really do anything while rendering...
+
+![006](https://github.com/atomicptr/atomicptr.dev/assets/674705/577487d5-a131-4c89-a57a-cbf68810d658)
+
+![007](https://github.com/atomicptr/atomicptr.dev/assets/674705/85850485-e317-4f7e-a2f0-534029ee9164)
+
+Despite being visible in the editor
+
+![008](https://github.com/atomicptr/atomicptr.dev/assets/674705/348ab077-5846-4252-9815-b0128f70b1e7)
+
+presumably this is a bug?
+
+Either way with this we finish part 2 on a bit of a low note :(
