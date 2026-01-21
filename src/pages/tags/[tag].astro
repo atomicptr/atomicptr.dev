@@ -1,0 +1,44 @@
+---
+import PostsList from "../../components/PostsList.astro";
+import RootLayout from "../../layouts/RootLayout.astro";
+import { Icon } from "astro-icon/components";
+
+export async function getStaticPaths() {
+    const posts = Object.values(
+        import.meta.glob("../blog/_posts/**/*.mdx", { eager: true }),
+    );
+
+    const uniqueTags = [
+        ...new Set(posts.map((post) => post.frontmatter.tags).flat()),
+    ];
+
+    return uniqueTags.map((tag) => {
+        const filteredPosts = posts.filter((post) =>
+            post.frontmatter.tags.includes(tag),
+        );
+        return {
+            params: { tag },
+            props: { posts: filteredPosts },
+        };
+    });
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+---
+
+
+<RootLayout title={`#${tag}`}>
+    <a href="/" class="btn btn-ghost btn-xs">
+        <Icon name="heroicons:chevron-left" />
+        Back
+    </a>
+
+    <h1 class="text-3xl font-semibold mt-12 mb-6">
+        #{tag}
+    </h1>
+
+    <PostsList posts={posts} />
+</RootLayout>
+
+

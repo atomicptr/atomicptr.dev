@@ -1,8 +1,6 @@
 ---
 import BlogPostLayout from "../../layouts/BlogPostLayout.astro";
 
-import { getCollection, render } from "astro:content";
-
 export async function getStaticPaths() {
     const posts = import.meta.glob("./_posts/**/*.mdx", { eager: true });
 

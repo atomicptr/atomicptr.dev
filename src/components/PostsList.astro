@@ -1,0 +1,51 @@
+---
+const { posts } = Astro.props;
+
+const sortedPosts = posts.sort((a, b) => {
+    return (
+        new Date(b.frontmatter.date).getTime() -
+        new Date(a.frontmatter.date).getTime()
+    );
+});
+
+const groupedPosts = sortedPosts.reduce((acc, post) => {
+    const year = new Date(post.frontmatter.date).getFullYear();
+
+    if (!acc[year]) {
+        acc[year] = [];
+    }
+
+    acc[year].push(post);
+    return acc;
+}, {});
+
+const years = Object.keys(groupedPosts).sort((a, b) => b - a);
+---
+
+<section class="my-8">
+    {years.map(year => (
+        <Fragment key={year}>
+            <div class="w-full flex mb-4">
+                <div class="w-16"></div>
+                <h2 class="grow text-3xl font-bold">{year}</h2>
+            </div>
+
+            {groupedPosts[year].map((post) => {
+                const date = new Date(post.frontmatter.date);
+                const slug = post.file.split('/').pop().replace(/\.mdx$/, '');
+
+                return (
+                    <div class="w-full flex mb-4 items-center" key={slug}>
+                        <div class="min-w-16 opacity-50">
+                            {date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}
+                        </div>
+
+                        <a href={`/blog/${post.slug ?? slug}`} class="link-primary">
+                            {post.frontmatter.title}
+                        </a>
+                    </div>
+                );
+            })}
+        </Fragment>
+    ))}
+</section>
