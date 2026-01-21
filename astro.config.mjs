@@ -12,6 +12,8 @@ import {
 import linkValidator from "astro-link-validator";
 
 export default defineConfig({
+    site: "https://atomicptr.dev",
+
     vite: {
         plugins: [tailwindcss()],
     },

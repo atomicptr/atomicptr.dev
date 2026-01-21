@@ -4,6 +4,7 @@ import { Icon } from "astro-icon/components";
 import { defineCollection, z } from "astro:content";
 import Gravatar from '../components/Gravatar.astro';
 import Comments from '../components/Comments.astro';
+import { SEO } from "astro-seo";
 
 import config from "../config.ts";
 
@@ -15,9 +16,28 @@ const displayDate = new Date(date).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
 });
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <RootLayout title={title}>
+    <SEO slot="head"
+        title={`${title} | ${config.title}`}
+        description={config.description}
+        canonical={canonicalURL}
+        openGraph={{
+            basic: {
+                title: title,
+                type: "article",
+                image: image,
+            }
+        }}
+        twitter={{
+            creator: `@${config.social.xcom}`,
+            card: "summary_large_image",
+        }}
+    />
+
     <main class="container mx-auto px-4 py-12 max-w-4xl">
         <article class="prose prose-lg lg:prose-xl mx-auto">
             <a href="/" class="btn btn-ghost btn-xs">
@@ -55,13 +75,13 @@ const displayDate = new Date(date).toLocaleDateString('en-US', {
                     <div class="grow"></div>
 
                     <nav class="flex flex-row items-center gap-5">
-                        <a href={config.urls.xcom} target="_blank" class="group flex items-center gap-1.5 hover:text-primary transition-all">
+                        <a href={`https://x.com/${config.social.xcom}`} target="_blank" class="group flex items-center gap-1.5 hover:text-primary transition-all">
                             <span class="opacity-50 group-hover:opacity-100 transition-opacity">
                                 <Icon name="fa7-brands:x-twitter" />
                             </span>
                         </a>
 
-                        <a href={config.urls.github} target="_blank" class="group flex items-center gap-1.5 hover:text-primary transition-all">
+                        <a href={`https://github.com/${config.social.github}`} target="_blank" class="group flex items-center gap-1.5 hover:text-primary transition-all">
                             <span class="opacity-50 group-hover:opacity-100 transition-opacity">
                                 <Icon name="fa7-brands:github" />
                             </span>
