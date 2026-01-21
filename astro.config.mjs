@@ -5,11 +5,11 @@ import mdx from "@astrojs/mdx";
 import icon from "astro-icon";
 import {
     transformerRenderWhitespace,
-    transformerRenderIndentGuides,
     transformerNotationDiff,
     transformerNotationFocus,
     transformerMetaHighlight,
 } from "@shikijs/transformers";
+import linkValidator from "astro-link-validator";
 
 export default defineConfig({
     vite: {
@@ -21,7 +21,6 @@ export default defineConfig({
             theme: "catppuccin-mocha",
             transformers: [
                 transformerRenderWhitespace({ position: "all" }),
-                // transformerRenderIndentGuides(),
                 transformerNotationDiff(),
                 transformerNotationFocus(),
                 transformerMetaHighlight(),
@@ -29,6 +28,13 @@ export default defineConfig({
         },
     },
 
-    integrations: [mdx(), icon()],
+    integrations: [
+        mdx(),
+        icon(),
+        linkValidator({
+            checkExternal: false,
+            failOnBrokenLinks: true,
+        }),
+    ],
 });
 
