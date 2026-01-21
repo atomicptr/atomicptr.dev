@@ -1,13 +1,18 @@
 ---
 import RootLayout from "../layouts/RootLayout.astro";
 import { Icon } from "astro-icon/components";
-import Gravatar from '../components/Gravatar.astro';
+import Gravatar from "../components/Gravatar.astro";
 import config from "../config.ts";
 
-const posts = Object.values(import.meta.glob("./blog/_posts/**/*.mdx", { eager: true }));
+const posts = Object.values(
+    import.meta.glob("./blog/_posts/**/*.mdx", { eager: true }),
+);
 
 const sortedPosts = posts.sort((a, b) => {
-    return new Date(b.frontmatter.date).getTime() - new Date(a.frontmatter.date).getTime();
+    return (
+        new Date(b.frontmatter.date).getTime() -
+        new Date(a.frontmatter.date).getTime()
+    );
 });
 
 const groupedPosts = sortedPosts.reduce((acc, post) => {

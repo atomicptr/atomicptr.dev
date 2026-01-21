@@ -1,9 +1,9 @@
 ---
-import RootLayout from './RootLayout.astro';
+import RootLayout from "./RootLayout.astro";
 import { Icon } from "astro-icon/components";
 import { defineCollection, z } from "astro:content";
-import Gravatar from '../components/Gravatar.astro';
-import Comments from '../components/Comments.astro';
+import Gravatar from "../components/Gravatar.astro";
+import Comments from "../components/Comments.astro";
 import { SEO } from "astro-seo";
 
 import config from "../config.ts";
@@ -11,10 +11,10 @@ import config from "../config.ts";
 const { frontmatter } = Astro.props;
 const { title, date, image, tags, links } = frontmatter;
 
-const displayDate = new Date(date).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+const displayDate = new Date(date).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
 });
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);

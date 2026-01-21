@@ -4,17 +4,20 @@ import BlogPostLayout from "../../layouts/BlogPostLayout.astro";
 import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
-    const posts = import.meta.glob("./_posts/**/*.mdx", {eager: true});
+    const posts = import.meta.glob("./_posts/**/*.mdx", { eager: true });
 
     return Object.values(posts).map((post) => {
-        const slug = post.file.split('/').pop().replace(/\.mdx$/, '');
+        const slug = post.file
+            .split("/")
+            .pop()
+            .replace(/\.mdx$/, "");
 
         return {
-        params: {
-            slug: post.slug ?? slug
-        },
+            params: {
+                slug: post.slug ?? slug,
+            },
             props: { post },
-        }
+        };
     });
 }
 
