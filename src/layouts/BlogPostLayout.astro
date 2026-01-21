@@ -9,7 +9,7 @@ import { SEO } from "astro-seo";
 import config from "../config.ts";
 
 const { frontmatter } = Astro.props;
-const { title, date, image, tags } = frontmatter;
+const { title, date, image, tags, links } = frontmatter;
 
 const displayDate = new Date(date).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -128,6 +128,22 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             <div class="blog-content">
                 <slot />
             </div>
+
+            {links && links.length > 0 && (
+                <Fragment>
+                    <h3 class="text-xl font-semibold mt-3 mb-3">Links</h3>
+
+                    <ul class="list-disc ml-8 mb-8">
+                        {links.map(link => (
+                            <li>
+                                <a href={link.url} class="link-primary">
+                                    {link.name}
+                                </a>
+                            </li>
+                        ))}
+                    </ul>
+                </Fragment>
+            )}
 
             <Comments />
         </article>
