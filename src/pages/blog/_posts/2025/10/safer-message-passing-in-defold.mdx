@@ -1,0 +1,748 @@
+---
+title: Safer message passing in Defold
+date: 2025-10-24
+image:
+    src: https://cdn.jsdelivr.net/gh/atomicptr/cdn@master/nimbus/9R55CNCACMPY3ET69XH.jpg
+links:
+    - name: "Official Defold Documentation: Message Passing"
+      url: "https://defold.com/manuals/message-passing/"
+    - name: "Source code of the demo project"
+      url: "https://github.com/atomicptr/defold-stack-calculator"
+    - name: "Lua dictionary of reserved Defold message identifiers"
+      url: "https://gist.github.com/atomicptr/ad67dfffc3bdf89dac681dcf9cd7d8f4"
+tags:
+    - defold
+    - gamedev
+    - lua
+    - tutorial
+---
+
+In Defold, message passing enables loosely coupled communication between game objects, but its reliance on string-based identifiers and arbitrarily shaped objects can lead to runtime errors from typos or just changes to the game down the line.
+
+This article explores approaches on how we can make message passing safer to help you create more reliable and robust code.
+
+Before reading this make sure you roughly know how message passing in Defold works otherwise this will be very confusing, I recommend reading the [excellent official documentation on message passing](https://defold.com/manuals/message-passing/) or if you are more into videos this [great introduction](https://www.youtube.com/watch?v=DT4D0d47udA) made by [@unfolding_game](https://x.com/unfolding_game).
+
+## Introducing the demo project
+
+I built a stack-based calculator "game" that heavily uses message passing to demonstrate how we can improve safety.
+
+In this demo, clicking on the number buttons sends messages to the display, which has a button to add the entered number to the stack and access to a few stack-based operations like "+", "-", "SUM" and "x2".
+
+Here is a video of what the project is: [https://youtu.be/znkpOBwp180](https://youtu.be/znkpOBwp180)
+
+Repository: [https://github.com/atomicptr/defold-stack-calculator](https://github.com/atomicptr/defold-stack-calculator)
+
+You can also browse the initial project state here: [https://github.com/atomicptr/defold-stack-calculator/tree/initial_version](https://github.com/atomicptr/defold-stack-calculator/tree/initial_version), I will create a tag for every improvement.
+
+Let's go over the messages we're sending across the demo
+
+```lua
+---Creates a click handler function that sends the passed `value` parameter to "/display"
+---@param value number
+---@return fun(self: ui.numpad)
+local function number_button(value)
+    return function()
+        msg.post("/display", "digit_enter", {
+            value = value,
+        })
+    end
+end
+
+---@param self ui.numpad
+function init(self)
+    -- ...
+
+    for i = 0, 9 do
+        -- here we add the buttons (btn_1 - btn_9), which gets their own on click handler function
+        --
+        -- for the non druid users out there the second parameter is a function that gets called
+        -- when the button gets clicked
+        self.druid:new_button(string.format("btn_%i", i), number_button(i))
+    end
+
+    -- and we have a clear button that also just posts a message to display
+    self.druid:new_button("btn_clear", function()
+        msg.post("/display", "clear")
+    end)
+
+    -- ...
+end
+```
+
+The display handles the messages from earlier "digit_enter" and "clear" like this:
+
+```lua
+---@param self       ui.display
+---@param message_id hash
+---@param message    table
+---@param sender     url
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    if message_id == hash "digit_enter" then
+        -- on digit enter we add the passed value to a list
+        table.insert(self.data, message.value)
+
+        -- then we set the text node to display the (formatted) fully entered number
+        self.text:set_text(format.number(get_value(self)))
+
+        -- and we enable the "add to stack" button
+        self.btn_add_to_stack:set_enabled(true)
+    elseif message_id == hash "clear" then
+        -- on clear we clear the data object and set the text to be empty (and disable the button again)
+
+        self.data = {}
+        self.text:set_text ""
+        self.btn_add_to_stack:set_enabled(false)
+    end
+
+        -- ...
+end
+```
+
+the "add to stack" button also sends a message to the stack like this:
+
+```lua
+---@param self ui.display
+function init(self)
+    -- ...
+
+    self.btn_add_to_stack = self.druid:new_button("btn_to_stack", function()
+        -- on click, we send "number_add" to the stack with the current value
+        msg.post("/stack", "number_add", {
+            value = get_value(self),
+        })
+
+        -- and then we send a message to the current game object to clear the display
+        msg.post(".", "clear")
+    end)
+
+        -- ...
+end
+```
+
+Lastly we look at the stack code:
+
+```lua
+---@param self ui.stack
+function init(self)
+    -- ...
+
+    -- here we define a few helper functions to create handlers based on the type of operation
+
+    ---Take one numbers from the stack and do an operation
+    ---@param message string
+    ---@return function
+    local function op_unary(message)
+        return function()
+            msg.post(".", message, {
+                a = pop_number(self),
+            })
+        end
+    end
+
+    ---Take two numbers from the stack and do an operation
+    ---@param message any
+    ---@return function
+    local function op_binary(message)
+        return function()
+            msg.post(".", message, {
+                a = pop_number(self),
+                b = pop_number(self),
+            })
+        end
+    end
+
+    ---Take all numbers from the stack and do an operation
+    ---@param message string
+    ---@return function
+    local function op_clear(message)
+        return function()
+            msg.post(".", message, {
+                items = clear(self),
+            })
+        end
+    end
+
+    -- next we define the buttons
+
+    -- when you click on "btn_add" it sends the message "op_add" to itself with the last two items popped from the stack
+    self.btn_add = self.druid:new_button("btn_add", op_binary "op_add")
+    self.btn_add:set_enabled(false)
+
+    -- etc. ...
+    self.btn_sub = self.druid:new_button("btn_sub", op_binary "op_sub")
+        -- ...
+end
+```
+
+Lastly lets look at how the stack handles the messages:
+
+```lua
+---@param self       ui.stack
+---@param message_id hash
+---@param message    table
+---@param sender     url
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    -- this is the message we receive from the display which just adds a number to the stack
+    if message_id == hash "number_add" then
+        add_number(self, message.value)
+        update_button_state(self)
+    -- this implements a simple addition operation
+    elseif message_id == hash "op_add" then
+        add_number(self, message.a + message.b)
+        update_button_state(self)
+    -- you get the idea :)
+    elseif message_id == hash "op_sub" then
+        -- ...
+    end
+
+        -- ...
+end
+```
+
+## Use Constants for Message Identifiers
+
+Using raw strings as message identifiers has several downsides
+
+Definitions:
+
+- **receiver**: The game object that receives the message
+
+**Typos Cause Silent Failures**
+
+Raw strings as message identifiers are prone to typos, which can lead to problems that will not be reported to you. For instance if you send a message to a game object like this:
+
+```lua
+-- note the typo in the message identifier, it should be "digit_enter"
+msg.post("/display", "digt_enter", {
+    value = 5,
+})
+```
+
+the display game object will receive the message, but since it doesn't handle it e.g.
+
+```lua
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    if message_id == hash "digit_enter" then
+        -- this will never be called because it receives "digt_enter"
+        -- ...
+    end
+
+    -- ...
+end
+```
+
+similary you can also have a typo on the receiving end which also will quietly just not do anything.
+
+**Forgetting To Hash Message Strings**
+
+Defold requires message identifiers to be hashed using the ``hash(...)`` function and at least I used to forgot to add this regularly, which causes an issue similar to the typo problem earlier, where the message will be received but never really processed, see this example:
+
+```lua
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    if message_id == "digit_enter" then
+        -- this will never be called because message_id is a hash
+        -- ...
+    end
+
+    -- ...
+end
+```
+
+**Refactoring Is Error-Prone**
+
+When working with raw strings refactoring message identifiers is quite the pain, you have to search and replace every occurance manually across all files that use said message and if you happen to use the same message string for multiple receivers you have to also check that you don't accidentally edit the wrong one. If you'd use a constant you can easily use the refactoring tooling of your editor to change the name across all files without breaking anything.
+
+These problems can very easily solved by just using constants instead of raw strings
+
+```lua
+-- numpad.gui_script
+local DIGIT_ENTER = hash "digit_enter"
+
+-- ...
+
+local function number_button(value)
+    return function()
+        msg.post("/display", DIGIT_ENTER, {
+            value = value,
+        })
+    end
+end
+```
+
+```lua
+-- display.gui_script
+local DIGIT_ENTER = hash "digit_enter"
+
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    if message_id == DIGIT_ENTER then
+        -- ...
+    end
+
+    -- ...
+end
+
+-- ...
+```
+
+This is a lot better but a few more problems persist:
+
+**Shared Messages**
+
+You'll likely need to send a message to another object, like we're doing here as well. This still has the problem of
+us having to write the constant line at the top of every script that uses it and the refactoring story only got slightly
+better.
+
+The best solution here in my opinion is to move every message to a single message dictionary, for instance create a file
+``main/msgs.lua`` which will contain every message we need for our ``main`` collection.
+
+```lua
+-- main/msgs.lua
+return {
+    ---@enum msgs.display
+    display = {
+        enter_digit = hash "enter_digit", -- NOTICE: we changed the name here, because why not
+        clear = hash "clear",
+    },
+
+    -- ...
+}
+```
+
+**Naming Conflicts**
+
+In order to avoid name conflicts you have to think about some sort of naming convention. For instance you might have a game object with several components that all react to the same message e.g. you might have a ``money.script`` and a ``health.script`` which both handle ``add`` for increasing the corresponding data. The easy solution here is to use a naming convention like prefixing the name of the component:
+
+```lua
+-- main/msgs.lua
+return {
+    display = {
+        ---Sends a digit to display
+        enter_digit = hash "display::enter_digit",
+
+        ---Clears the display
+        clear = hash "display::clear",
+    },
+
+    -- ...
+}
+```
+
+We can also add some documentation commits here that your editor might be able to display, which shows up like this:
+
+![](https://cdn.jsdelivr.net/gh/atomicptr/cdn@master/nimbus/0skE29Cr9QKow8drf3Sb5nrwssC6W2gyL.png)
+
+Similarly Defold has a few reserved message identifiers like ``enable``, ``disable``, ``load``, etc. containing verbs you might also want to use that will trigger a component accidentally.
+
+I made a Lua module here that you can use that includes a messages dictionary for all(?) of Defolds reserved keywords: [https://gist.github.com/atomicptr/ad67dfffc3bdf89dac681dcf9cd7d8f4](https://gist.github.com/atomicptr/ad67dfffc3bdf89dac681dcf9cd7d8f4)
+
+You can then use the messages dictionary like this:
+
+```lua
+-- numpad.gui_script
+local msgs = require "main.msgs"
+
+-- ...
+
+local function number_button(value)
+    return function()
+        msg.post("/display", msgs.display.enter_digit, {
+            value = value,
+        })
+    end
+end
+```
+
+```lua
+-- display.gui_script
+local msgs = require "main.msgs"
+
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    if message_id == msgs.display.enter_digit then
+        -- ...
+    end
+
+    -- ...
+end
+
+-- ...
+```
+
+You can see the state after this refactor here: [https://github.com/atomicptr/defold-stack-calculator/tree/refactor_message_identifiers](https://github.com/atomicptr/defold-stack-calculator/tree/refactor_message_identifiers)
+
+## Specifying the shape of message objects
+
+Lua is a dynamic language, so we can't rely on a static type system for safety, but what we can do is write type annotations via tools like EmmyLua to help us spot errors directly in the editor without having to run the program (and hope for an error to be thrown)
+
+We can for instance define these for functions and if you get a mismatch it might look something like this:
+
+![Example of EmmyLua style type annotations](https://cdn.jsdelivr.net/gh/atomicptr/cdn@master/nimbus/1mruwa22G3AVo55tGfc89VebMLLRXr9gv.png)
+We can also use this mechanism for messages by defining message types as a "class", lets define some type annotations for our stack operations:
+
+```lua
+-- main/msgs.lua
+
+    -- ...
+
+    --- Messages for the stack component
+    stack = {
+        -- ...
+
+        ---@class msgs.stack.unary_op
+        ---@field a number
+
+        ---@class msgs.stack.binary_op
+        ---@field a number
+        ---@field b number
+
+        ---@class msgs.stack.stack_op
+        ---@field items number[]
+
+       -- ...
+    }
+
+    -- ...
+```
+
+On the message receiver side we can now cast our message type into one of these via:
+
+```lua
+    -- ...
+    elseif message_id == msgs.stack.ops.add then
+        ---@cast message msgs.stack.binary_op
+
+        add_number(self, message.a + message.b)
+        update_button_state(self)
+    elseif message_id == msgs.stack.ops.sub then
+        -- ...
+    end
+
+    -- ...
+```
+
+Your editor should now (assuming it can) interpret the message object as an object of the type ``msgs.stack.binary_op`` if you'd
+for instance try to access a non existing field you would see the following message:
+
+![Example of error message for non existing fields](https://cdn.jsdelivr.net/gh/atomicptr/cdn@master/nimbus/j5knHnDhKTvQjE23lvUb7wWCUzbc5z9Pr.png)
+
+Also similarly ``message.a`` and ``message.b`` are treated as ``number`` hence passing them as is into a function that for instance expects a string will also trigger a warning:
+
+![](https://cdn.jsdelivr.net/gh/atomicptr/cdn@master/nimbus/TBPZh0BgvMUCbXm4XYlBSgUgjGDJI3ug9.png)
+
+Similarly we can also add these annotations to ``msg.post`` calls by doing this:
+
+```lua
+    ---Take one numbers from the stack and do an operation
+    ---@param message hash
+    ---@return function
+    local function op_unary(message)
+        return function()
+            -- a bit tedious but we can extract the message data into an object and
+            -- add a type annotation to it
+
+            ---@type msgs.stack.unary_op
+            local data = {
+                a = pop_number(self),
+            }
+
+            msg.post(".", message, data)
+        end
+    end
+```
+
+Beyond checking for types this will also report missing fields:
+
+![](https://cdn.jsdelivr.net/gh/atomicptr/cdn@master/nimbus/KqeXndT6sFqUDgGp3WxqsYksbtZpAPuvU.png)
+
+You can see the state after this refactor here: [https://github.com/atomicptr/defold-stack-calculator/tree/message_type_annotations](https://github.com/atomicptr/defold-stack-calculator/tree/message_type_annotations)
+
+### Asserting object shapes
+
+While type annotation offer support and help the developer find problems they are not an enforcement mechanism and are limited to communicating information. To ensure robust message passing, explicitly asserting the shape of the message object is crucial. By checking for expected keys and data types using Lua's ``assert`` function, e.g. ``assert(type(message.value) == "number")``, you can catch errors early and find out where the issue is coming from before the message data is actually used somewhere creating an invalid state without you noticing.
+
+You can just add these checks inside your ``on_message`` function like this:
+
+```lua
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    if message_id == msgs.stack.add_number then
+        ---@cast message msgs.stack.add_number
+
+                -- makes sure that message.value exists and is of type number
+        assert(type(message.value) == "number", "message.value must be a number")
+
+        add_number(self, message.value)
+        update_button_state(self)
+    elseif message_id == msgs.stack.ops.add then
+        ---@cast message msgs.stack.binary_op
+        assert(type(message.a) == "number", "message.a must be a number")
+        assert(type(message.b) == "number", "message.b must be a number")
+
+            -- ...
+        end
+end
+```
+
+If we now accidentally send e.g. a string to our game object we will get an error like this:
+
+![](https://cdn.jsdelivr.net/gh/atomicptr/cdn@master/nimbus/k3fFRkh0UcdrqmynfN0jQsxhN0DWcdp3x.png)
+Which doesn't only tell us exactly where the error occurred (**main/ui/display.gui_script** at line **63**) but also from where it was dispatched (sent from **main:/numpad#gui**)
+
+Additionally, you can also assert the message shapes on the sender side which can be especially useful if you send messages from various places
+
+```lua
+    ---Take two numbers from the stack and do an operation
+    ---@param message hash
+    ---@return function
+    local function op_binary(message)
+        return function()
+            ---@type msgs.stack.binary_op
+            local data = {
+                a = pop_number(self),
+                b = pop_number(self),
+            }
+
+            -- make `a` and `b` are numbers
+            assert(type(data.a) == "number", "message.a must be a number")
+            assert(type(data.b) == "number", "message.b must be a number")
+
+            msg.post(".", message, data)
+        end
+    end
+```
+
+To make our life a bit easier we can also pack the asserts into a separate function that we can also put into the messages dictionary:
+
+```lua
+-- main/msgs.lua
+return {
+    -- ...
+
+    stack = {
+            -- ...
+
+        ---@class msgs.stack.unary_op
+        ---@field a number
+
+        ---@param message msgs.stack.unary_op
+        assert_unary_op = function(message)
+            assert(type(message.a) == "number", "message.a must be a number")
+        end,
+
+        ---@class msgs.stack.binary_op
+        ---@field a number
+        ---@field b number
+
+        ---@param message msgs.stack.binary_op
+        assert_binary_op = function(message)
+            assert(type(message.a) == "number", "message.a must be a number")
+            assert(type(message.b) == "number", "message.b must be a number")
+        end,
+
+        ---@class msgs.stack.stack_op
+        ---@field items number[]
+
+        ---@param message msgs.stack.stack_op
+        assert_stack_op = function(message)
+            assert(message.items, "message must have items")
+            for index, item in ipairs(message.items) do
+                assert(type(item) == "number", string.format("message.items[%i] must be a number", index))
+            end
+        end,
+
+                -- ...
+    },
+
+        -- ...
+}
+```
+
+This is a very powerful pattern which allows you to validate the shapes of arbitrarily complex objects, if you decide to refactor a message at one place and you forget to update another place, you will be notified and know thats something wrong which might have otherwise just be a silent failure somewhere where while the sent shape might be wrong the code might still kinda work.
+
+Some caveats when using assert though, they aren't free, every condition and also the error message will be evaluated every time the assert function is executed.
+
+You might want to read this (archived) article ["A caveat when using assert()"](https://web.archive.org/web/20221221064729/http://lua.space/general/assert-usage-caveat).
+
+It might generally be not a bad idea to use a custom assert function that adds some additional debug information (like a stack trace using ``debug.traceback()`` or the ability to be turned off in for instance release builds by checking against Defolds ``sys.get_engine_info().is_debug``.
+
+If you are curious about assert heavy programming styles you might also want to read one of these:
+
+- [Tiger Style](https://tigerstyle.dev/)
+- [NASA - The Power of 10: Rules for Developing Safety-Critical Code](https://en.wikipedia.org/wiki/The_Power_of_10:_Rules_for_Developing_Safety-Critical_Code)
+
+You can see the state after this refactor here: [https://github.com/atomicptr/defold-stack-calculator/tree/add_asserts](https://github.com/atomicptr/defold-stack-calculator/tree/add_asserts)
+
+### Validating specifications using spec.lua
+
+As you might have noticed, while this helps its a tad bit inconvenient to set up especially when you are working with very complex objects.
+
+Inspired by the Clojure library [spec](https://clojure.org/guides/spec), I made a small library for defining and validating Lua data structures which allows you to declaratively specify the shape and constraints of your data and validate against them at runtime. This library is called [spec.lua](https://github.com/atomicptr/spec.lua)
+
+**Setup**
+
+First we create a `vendor` directory in our Defold project and throw the single [spec.lua](https://raw.githubusercontent.com/atomicptr/spec.lua/refs/heads/master/spec.lua) in there
+
+If you have access to a shell with wget you can use this:
+
+```bash
+$ mkdir -p vendor
+$ cd vendor
+$ wget https://raw.githubusercontent.com/atomicptr/spec.lua/refs/heads/master/spec.lua
+```
+
+Now we can use the library.
+
+**Usage**
+
+Essentially you have predicates (functions that return true/false) and validation functions and you either use simple predicates or compose
+several of these functions together to test for more complex examples.
+
+For instance, you can check if something is a string via:
+
+```lua
+if spec.valid(spec.string, "My String") then
+    -- ...
+end
+```
+
+The `spec.valid` function checks if the value (2nd argument) satisfies our predicate (1st argument) and then returns true/false. There is also `spec.conform` which returns either nil or the value depending if its valid and the one we care actually about today `spec.assert` which throws an error if the value is invalid.
+
+For instance if we want to test our binary stack operations we could write something like this:
+
+```lua
+local is_binary_op = spec.keys {
+    a = spec.number,
+    b = spec.number,
+}
+
+spec.assert(is_binary_op, { a = 10, b = 30 })
+```
+
+For more usage examples check out the [Examples section in the spec.lua repository](https://github.com/atomicptr/spec.lua?tab=readme-ov-file#example)
+
+**Integrating spec.lua into our project**
+
+Here is an example for our stack operations:
+
+```lua
+--- main/msgs.lua
+local spec = require "vendor.spec"
+
+return {
+    -- ...
+
+    stack = {
+        -- ...
+
+        ---@class msgs.stack.unary_op
+        ---@field a number
+
+        unary_op_spec = spec.keys {
+            a = spec.number,
+        },
+
+        ---@class msgs.stack.binary_op
+        ---@field a number
+        ---@field b number
+
+        binary_op_spec = spec.keys {
+            a = spec.number,
+            b = spec.number,
+        },
+
+        ---@class msgs.stack.stack_op
+        ---@field items number[]
+
+        -- this one is especially a lot simpler now
+        stack_op_spec = spec.keys {
+            items = spec.list(spec.number),
+        },
+
+                -- ...
+    },
+
+        -- ...
+}
+```
+
+For the message receiver we now only need to replace the previous assert function with this:
+
+```lua
+function on_message(self, message_id, message, sender)
+    -- ...
+
+    if "..." then
+            -- ...
+    elseif message_id == msgs.stack.ops.add then
+        ---@cast message msgs.stack.binary_op
+        spec.assert(msgs.stack.binary_op_spec, message)
+
+        add_number(self, message.a + message.b)
+        update_button_state(self)
+    -- ...
+    end
+end
+```
+
+For the `msg.post` side we can also use `spec.assert`s property to return the object when valid again to make the data passing a bit easier
+
+```lua
+    ---Take two numbers from the stack and do an operation
+    ---@param message hash
+    ---@return function
+    local function op_binary(message)
+        return function()
+            msg.post(
+                ".",
+                message,
+                -- see here: if spec.assert doesn't error it will return the object as is
+                spec.assert(msgs.stack.binary_op_spec, {
+                    a = pop_number(self),
+                    b = pop_number(self),
+                })
+            )
+        end
+    end
+```
+
+### Honorable mention: Pidgeon
+
+There is also another library that you can use for defining safe messages in Defold called [Pidgeon](https://github.com/paweljarosz/pigeon), which I haven't tried but I felt like I should mention it since it also tackles the problem of safety with message passing (with also a bit more things like its own message/event system with subscribers etc.)
+
+You can define and send messages like this:
+
+```lua
+pidgeon.define("stack::op_add", {
+    a = "number",
+    b = "number",
+})
+
+pidgeon.send("stack::op_add", { a = 100, b = 50 })
+```
+
+Here is also a [video tutorial on Pidgeon by the author](https://www.youtube.com/watch?v=y3HfcCUkgOo).
+
+
+
+
+
+
+
+
+
+Thats it with the article, I hope you enjoyed reading it! These are some of the patterns I "found" while working with Defold on my own projects to solve some of the pain points I've experienced, if you've found some other cool ideas that are related to this topic feel free to share them in the comments I'd very much appreciate it :)
+
+Thanks for reading!

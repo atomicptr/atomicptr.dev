@@ -1,5 +1,11 @@
 ---
 import RootLayout from './RootLayout.astro';
+import { Icon } from "astro-icon/components";
+import { defineCollection, z } from "astro:content";
+import Gravatar from '../components/Gravatar.astro';
+import Comments from '../components/Comments.astro';
+
+import config from "../config.ts";
 
 const { frontmatter } = Astro.props;
 const { title, date, image, tags } = frontmatter;
@@ -14,6 +20,10 @@ const displayDate = new Date(date).toLocaleDateString('en-US', {
 <RootLayout title={title}>
     <main class="container mx-auto px-4 py-12 max-w-4xl">
         <article class="prose prose-lg lg:prose-xl mx-auto">
+            <a href="/" class="btn btn-ghost btn-xs">
+                <Icon name="heroicons:chevron-left" />
+                Back
+            </a>
 
             <header class="mx-auto py-8 px-4">
                 <h1 class="text-4xl font-bold text-base-content mb-4 tracking-tight text-center md:text-left">
@@ -24,13 +34,13 @@ const displayDate = new Date(date).toLocaleDateString('en-US', {
                     <div class="flex items-center gap-3">
                         <div class="avatar">
                             <div class="w-8 rounded-full ring ring-primary/20 ring-offset-base-100 ring-offset-2">
-                                <img src="https://api.dicebear.com/9.x/pixel-art/svg?seed=me%40atomicptr.dev" alt="Author Avatar" />
+                                <Gravatar email={ config.author.email } />
                             </div>
                         </div>
 
                         <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                             <a href="/" target="_blank" class="link-primary font-semibold tracking-wide">
-                                @atomicptr
+                                @{ config.author.name }
                             </a>
 
                             {date && (
@@ -45,16 +55,28 @@ const displayDate = new Date(date).toLocaleDateString('en-US', {
                     <div class="grow"></div>
 
                     <nav class="flex flex-row items-center gap-5">
-                        <a href="#" class="group flex items-center gap-1.5 hover:text-primary transition-all">
-                            <span class="opacity-50 group-hover:opacity-100 transition-opacity">twitter</span>
+                        <a href={config.urls.xcom} target="_blank" class="group flex items-center gap-1.5 hover:text-primary transition-all">
+                            <span class="opacity-50 group-hover:opacity-100 transition-opacity">
+                                <Icon name="fa7-brands:x-twitter" />
+                            </span>
                         </a>
 
-                        <a href="#" class="group flex items-center gap-1.5 hover:text-primary transition-all">
-                            <span class="opacity-50 group-hover:opacity-100 transition-opacity">github</span>
+                        <a href={config.urls.github} target="_blank" class="group flex items-center gap-1.5 hover:text-primary transition-all">
+                            <span class="opacity-50 group-hover:opacity-100 transition-opacity">
+                                <Icon name="fa7-brands:github" />
+                            </span>
+                        </a>
+
+                        <a href={config.urls.support} target="_blank" class="group flex items-center gap-1.5 hover:text-primary transition-all">
+                            <span class="opacity-50 group-hover:opacity-100 transition-opacity">
+                                <Icon name="heroicons:heart" />
+                            </span>
                         </a>
 
                         <button class="flex items-center gap-1.5 hover:text-accent transition-all">
-                            <span class="opacity-50 hover:opacity-100">copy link</span>
+                            <span class="opacity-50 hover:opacity-100">
+                                <Icon name="heroicons:link" />
+                            </span>
                         </button>
                     </nav>
                 </div>
@@ -63,7 +85,8 @@ const displayDate = new Date(date).toLocaleDateString('en-US', {
             {tags && tags.length > 0 && (
                 <div class="flex flex-row flex-wrap gap-2 justify-center mb-6">
                     {tags.map(tag =>
-                        <a href="#" class="badge badge-lg badge-outline hover:badge-primary">
+                        <a href={`/tags/${tag}`} class="badge badge-lg badge-outline hover:badge-primary">
+                            <Icon name="heroicons:hashtag" />
                             { tag }
                         </a>
                     )}
@@ -85,6 +108,8 @@ const displayDate = new Date(date).toLocaleDateString('en-US', {
             <div class="blog-content">
                 <slot />
             </div>
+
+            <Comments />
         </article>
     </main>
 </RootLayout>

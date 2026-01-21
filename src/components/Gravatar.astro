@@ -1,0 +1,9 @@
+---
+import md5 from "md5";
+
+const {email} = Astro.props;
+
+const gravatarId = md5(email);
+---
+
+<img src={`https://gravatar.com/avatar/${md5(email)}?s=200&d=retro`} />
