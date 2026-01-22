@@ -1,0 +1,63 @@
+---
+import type { SeriesPost } from "../utils/posts";
+import { Icon } from "astro-icon/components";
+
+interface Props {
+    posts: SeriesPost[];
+}
+
+const { posts } = Astro.props;
+---
+
+<div class="mb-8">
+    <div class="flex items-center gap-2 mb-4 text-sm font-semibold text-base-content/70 uppercase tracking-wider">
+        <Icon name="heroicons:book-open" class="w-5 h-5" />
+        <span>Series</span>
+    </div>
+
+    <div class="bg-base-200/50 rounded-lg border border-base-300 overflow-hidden">
+        <ul class="divide-y divide-base-300">
+            {posts.map((post) => (
+                <li>
+                    <a
+                        href={`/blog/${post.slug}`}
+                        class:list={[
+                            "flex items-center gap-4 p-4 transition-colors",
+                            post.isCurrent
+                                ? "bg-primary/10 text-primary"
+                                : "hover:bg-base-200"
+                        ]}
+                    >
+                        <div class:list={[
+                            "shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium",
+                            post.isCurrent
+                                ? "bg-primary text-primary-content"
+                                : "bg-base-300 text-base-content/60"
+                        ]}>
+                            {post.position}
+                        </div>
+
+                        <div class="flex-1 min-w-0">
+                            <div class:list={[
+                                "font-medium truncate",
+                                post.isCurrent ? "" : "text-base-content/80"
+                            ]}>
+                                {post.title}
+                            </div>
+                            <div class:list={[
+                                "text-xs mt-0.5",
+                                post.isCurrent ? "text-primary/70" : "text-base-content/50"
+                            ]}>
+                                Part {post.position} of {post.total}
+                            </div>
+                        </div>
+
+                        {post.isCurrent && (
+                            <Icon name="heroicons:chevron-right" class="w-5 h-5 opacity-50" />
+                        )}
+                    </a>
+                </li>
+            ))}
+        </ul>
+    </div>
+</div>

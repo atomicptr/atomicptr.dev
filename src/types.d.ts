@@ -4,21 +4,22 @@ export interface PostContent {
     date: string;
     image?: {
         src: string;
-        caption: string?;
+        caption?: string;
     };
     links?: Link[];
     tags?: string[];
+    prev?: string;
+    next?: string;
 }
 
 export interface Post {
     slug?: string;
     file: string;
     frontmatter: PostContent;
-    Content: any?;
+    Content?: any;
 }
 
 export interface Link {
     name: string;
     url: string;
 }
-

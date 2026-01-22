@@ -1,19 +1,23 @@
 ---
 import Comments from "../components/Comments.astro";
 import Gravatar from "../components/Gravatar.astro";
+import PostSeries from "../components/PostSeries.astro";
 import RootLayout from "./RootLayout.astro";
 import type { Link, PostContent } from "../types";
 import { Icon } from "astro-icon/components";
 import { SEO } from "astro-seo";
 import { createExcerpt } from "../utils/excerpt";
+import { getPostSeries } from "../utils/posts";
 
 import config from "../config.ts";
 
 interface Props {
     frontmatter: PostContent;
+    slug?: string;
+    file?: string;
 }
 
-const { frontmatter } = Astro.props;
+const { frontmatter, slug, file } = Astro.props;
 const { title, description, date, image, tags, links } = frontmatter;
 
 const displayDate = new Date(date).toLocaleDateString("en-US", {
@@ -23,7 +27,19 @@ const displayDate = new Date(date).toLocaleDateString("en-US", {
 });
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const postDescription = description ?? (await createExcerpt(await Astro.slots.render("default"))) ?? config.description;
+const postDescription =
+    description ??
+    (await createExcerpt(await Astro.slots.render("default"))) ??
+    config.description;
+
+const currentSlug =
+    slug ??
+    file
+        ?.split("/")
+        .pop()
+        ?.replace(/\.mdx$/, "") ??
+    "";
+const series = getPostSeries(currentSlug);
 ---
 
 <RootLayout title={title}>
@@ -132,6 +148,10 @@ const postDescription = description ?? (await createExcerpt(await Astro.slots.re
                         </figcaption>
                     )}
                 </figure>
+            )}
+
+            {series.hasSeries && (
+                <PostSeries posts={series.posts} />
             )}
 
             <div class="blog-content">
