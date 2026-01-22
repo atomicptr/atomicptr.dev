@@ -13,9 +13,9 @@ const posts = Object.values(
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
-<RootLayout title="Blog">
+<RootLayout>
     <SEO slot="head"
-        title={`Blog | ${config.title}`}
+        title={config.title}
         description={config.description}
         canonical={canonicalURL}
         openGraph={{
