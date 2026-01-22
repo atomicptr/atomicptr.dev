@@ -1,10 +1,10 @@
 ---
-import BlogPostLayout from "../../layouts/BlogPostLayout.astro";
-import type { Post } from "../../types";
+import BlogPostLayout from "@src/layouts/BlogPostLayout.astro";
+import type { Post } from "@src/types";
 
 export async function getStaticPaths() {
     const posts: Post[] = Object.values(
-        import.meta.glob("./_posts/**/*.mdx", {
+        import.meta.glob("@src/pages/blog/_posts/**/*.mdx", {
             eager: true,
         }),
     );

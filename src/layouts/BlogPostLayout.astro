@@ -1,15 +1,15 @@
 ---
-import Comments from "../components/Comments.astro";
-import Gravatar from "../components/Gravatar.astro";
-import PostSeries from "../components/PostSeries.astro";
-import RootLayout from "./RootLayout.astro";
-import type { Link, PostContent } from "../types";
+import Comments from "@src/components/Comments.astro";
+import Gravatar from "@src/components/Gravatar.astro";
+import PostSeries from "@src/components/PostSeries.astro";
+import RootLayout from "@src/layouts/RootLayout.astro";
+import type { Link, PostContent } from "@src/types";
 import { Icon } from "astro-icon/components";
 import { SEO } from "astro-seo";
-import { createExcerpt } from "../utils/excerpt";
-import { getPostSeries } from "../utils/posts";
+import { createExcerpt } from "@src/utils/excerpt";
+import { getPostSeries } from "@src/utils/posts";
 
-import config from "../config.ts";
+import config from "@src/config.ts";
 
 interface Props {
     frontmatter: PostContent;

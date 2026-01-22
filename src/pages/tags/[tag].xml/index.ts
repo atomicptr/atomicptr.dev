@@ -1,5 +1,5 @@
 import rss from "@astrojs/rss";
-import config from "../../../config";
+import config from "@src/config";
 
 interface Post {
     slug?: string;
@@ -21,7 +21,7 @@ function getSlugFromFilePath(filePath: string): string {
 
 function getAllPosts(): Post[] {
     const posts: Post[] = Object.values(
-        import.meta.glob("../../blog/_posts/**/*.mdx", {
+        import.meta.glob("@src/pages/blog/_posts/**/*.mdx", {
             eager: true,
         }),
     );

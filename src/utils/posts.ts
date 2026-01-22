@@ -1,4 +1,4 @@
-import type { Post } from "../types";
+import type { Post } from "@src/types";
 
 export interface SeriesPost {
     title: string;
@@ -22,7 +22,7 @@ function getSlugFromFilePath(filePath: string): string {
 
 export function getAllPosts(): Post[] {
     const posts: Post[] = Object.values(
-        import.meta.glob("../pages/blog/_posts/**/*.mdx", {
+        import.meta.glob("@src/pages/blog/_posts/**/*.mdx", {
             eager: true,
         }),
     );

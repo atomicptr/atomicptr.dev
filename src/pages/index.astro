@@ -1,13 +1,13 @@
 ---
-import RootLayout from "../layouts/RootLayout.astro";
+import RootLayout from "@src/layouts/RootLayout.astro";
 import { Icon } from "astro-icon/components";
-import Gravatar from "../components/Gravatar.astro";
-import PostsList from "../components/PostsList.astro";
+import Gravatar from "@src/components/Gravatar.astro";
+import PostsList from "@src/components/PostsList.astro";
 import { SEO } from "astro-seo";
-import config from "../config.ts";
+import config from "@src/config.ts";
 
 const posts = Object.values(
-    import.meta.glob("./blog/_posts/**/*.mdx", { eager: true }),
+    import.meta.glob("@src/pages/blog/_posts/**/*.mdx", { eager: true }),
 );
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
