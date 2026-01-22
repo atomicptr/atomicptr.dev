@@ -33,11 +33,11 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             basic: {
                 title: title,
                 type: "article",
-                image: image?.src ?? `${new URL("/social.jpg", Astro.site)}`,
+                image: image?.src ?? `${new URL("/social.jpg", Astro.site).toString()}`,
             },
             article: {
                 publishedTime: date,
-                author: [config.author.name],
+                authors: [config.author.name],
                 tags: tags,
             }
         }}
