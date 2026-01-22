@@ -6,6 +6,11 @@ import { Icon } from "astro-icon/components";
 import { SEO } from "astro-seo";
 
 import config from "../config.ts";
+import type { Link, PostContent } from "../types";
+
+interface Props {
+    frontmatter: PostContent;
+}
 
 const { frontmatter } = Astro.props;
 const { title, date, image, tags, links } = frontmatter;
@@ -28,7 +33,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             basic: {
                 title: title,
                 type: "article",
-                image: image ?? `${new URL("/social.jpg", Astro.site)}`,
+                image: image?.src ?? `${new URL("/social.jpg", Astro.site)}`,
             }
         }}
         twitter={{
@@ -97,7 +102,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 
             {tags && tags.length > 0 && (
                 <div class="flex flex-row flex-wrap gap-2 justify-center mb-6">
-                    {tags.map(tag =>
+                    {tags.map((tag: string) =>
                         <a href={`/tags/${tag}`} class="badge badge-lg badge-outline hover:badge-primary">
                             <Icon name="heroicons:hashtag" />
                             { tag }
@@ -127,7 +132,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
                     <h3 class="text-xl font-semibold mt-3 mb-3">Links</h3>
 
                     <ul class="list-disc ml-8 mb-8">
-                        {links.map(link => (
+                        {links.map((link: Link) => (
                             <li>
                                 <a href={link.url} class="link-primary">
                                     {link.name}

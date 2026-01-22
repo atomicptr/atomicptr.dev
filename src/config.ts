@@ -1,7 +1,7 @@
 export default {
     title: "dev://atomicptr",
     description: "A blog mostly about programming",
-    intro: "Software Developer based in Germany 🇩🇪. 🐧 Linux & Open Source enthusiast, living almost exclusively in Neovim ⌨️. 🥋 BJJ & Judo practitioner — finding balance on and off the mats. 💍 Husband & lifelong learner. 🗣️ Speaking German 🇩🇪, English 🏴󠁧󠁢󠁥󠁮󠁧󠁿, and Japanese 🇯🇵.",
+    intro: "🇩🇪 Software Developer based in Germany.\n🐧 Linux & Open Source enthusiast, living almost exclusively in Neovim.\n🥋 BJJ & Judo practitioner — finding balance on and off the mats.\n 🗣️ Speaking German 🇩🇪, English 🏴󠁧󠁢󠁥󠁮󠁧󠁿, and Japanese 🇯🇵.",
 
     author: {
         name: "atomicptr",

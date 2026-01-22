@@ -1,51 +1,52 @@
 ---
-const { posts } = Astro.props;
+import type { Post } from "../types";
 
-const sortedPosts = posts.sort((a, b) => {
+type Grouped = { [year: string]: Post[] };
+
+const { posts } = Astro.props as { posts: Post[] };
+
+const sortedPosts = (posts ?? []).slice().sort((a: Post, b: Post) => {
     return (
         new Date(b.frontmatter.date).getTime() -
         new Date(a.frontmatter.date).getTime()
     );
 });
 
-const groupedPosts = sortedPosts.reduce((acc, post) => {
-    const year = new Date(post.frontmatter.date).getFullYear();
-
-    if (!acc[year]) {
-        acc[year] = [];
-    }
-
+const groupedPosts: Grouped = sortedPosts.reduce((acc: Grouped, post: Post) => {
+    const year = new Date(post.frontmatter.date).getFullYear().toString();
+    if (!acc[year]) acc[year] = [];
     acc[year].push(post);
     return acc;
-}, {});
+}, {} as Grouped);
 
-const years = Object.keys(groupedPosts).sort((a, b) => b - a);
+const years = Object.keys(groupedPosts).sort(
+    (a: string, b: string) => Number(b) - Number(a),
+);
 ---
 
 <section class="my-8">
-    {years.map(year => (
-        <Fragment key={year}>
+    {years.map((year: string) => (
+        <div>
             <div class="w-full flex mb-4">
                 <div class="w-16"></div>
                 <h2 class="grow text-3xl font-bold">{year}</h2>
             </div>
 
-            {groupedPosts[year].map((post) => {
+            {(groupedPosts[year] ?? []).map((post: Post) => {
                 const date = new Date(post.frontmatter.date);
-                const slug = post.file.split('/').pop().replace(/\.mdx$/, '');
+                const slug = post.file.split('/').pop()!.replace(/\.mdx$/, '');
 
                 return (
-                    <div class="w-full flex mb-4 items-center" key={slug}>
+                    <div class="w-full flex mb-4 items-center">
                         <div class="min-w-16 opacity-50">
                             {date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}
                         </div>
-
                         <a href={`/blog/${post.slug ?? slug}`} class="link-primary">
                             {post.frontmatter.title}
                         </a>
                     </div>
                 );
             })}
-        </Fragment>
+        </div>
     ))}
 </section>

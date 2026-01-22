@@ -1,13 +1,18 @@
 ---
 import BlogPostLayout from "../../layouts/BlogPostLayout.astro";
+import type { Post } from "../../types";
 
 export async function getStaticPaths() {
-    const posts = import.meta.glob("./_posts/**/*.mdx", { eager: true });
+    const posts: Post[] = Object.values(
+        import.meta.glob("./_posts/**/*.mdx", {
+            eager: true,
+        }),
+    );
 
-    return Object.values(posts).map((post) => {
+    return posts.map((post: Post) => {
         const slug = post.file
             .split("/")
-            .pop()
+            .pop()!
             .replace(/\.mdx$/, "");
 
         return {
@@ -19,10 +24,11 @@ export async function getStaticPaths() {
     });
 }
 
-const { post } = Astro.props;
-const { Content } = post;
+const post = Astro.props.post as any;
+const Content = post.Content ?? post.default ?? null;
 ---
 
 <BlogPostLayout {...post}>
     <Content />
 </BlogPostLayout>
+

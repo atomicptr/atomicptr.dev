@@ -2,14 +2,15 @@
 import PostsList from "../../components/PostsList.astro";
 import RootLayout from "../../layouts/RootLayout.astro";
 import { Icon } from "astro-icon/components";
+import type { Post } from "../../types";
 
 export async function getStaticPaths() {
-    const posts = Object.values(
+    const posts: Post[] = Object.values(
         import.meta.glob("../blog/_posts/**/*.mdx", { eager: true }),
     );
 
     const uniqueTags = [
-        ...new Set(posts.map((post) => post.frontmatter.tags).flat()),
+        ...new Set(posts.map((post: Post) => post.frontmatter.tags).flat()),
     ];
 
     return uniqueTags.map((tag) => {

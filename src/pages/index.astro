@@ -23,9 +23,10 @@ const posts = Object.values(
                 <h2 class="text-3xl font-bold text-base-content mb-2">
                     Hey, I'm <span class="font-bold text-primary">{config.author.name}</span> <span class="inline-block animate-bounce">👋</span>
                 </h2>
-                <p class="text-lg text-base-content/70 mb-6 max-w-2xl leading-relaxed">
-                    {config.intro}
-                </p>
+
+                <div class="text-lg text-base-content/70 mb-6 max-w-2xl leading-relaxed">
+                    {config.intro.split("\n").map(line => <p>{line}</p>)}
+                </div>
 
                 <div class="flex flex-wrap justify-center md:justify-start gap-4">
                     <a href={`https://x.com/${config.social.xcom}`} target="_blank" class="btn btn-sm btn-outline gap-2 border-base-content/20">
