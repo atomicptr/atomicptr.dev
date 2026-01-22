@@ -8,17 +8,15 @@
         "preview": "astro preview",
         "astro": "astro"
     },
-    "dependencies": {
-        "@astrojs/mdx": "^4.3.13",
-        "astro": "^5.16.12",
-        "astro-icon": "^1.1.5"
-    },
     "devDependencies": {
+        "@astrojs/mdx": "^4.3.13",
         "@iconify-json/fa7-brands": "^1.2.1",
         "@iconify-json/heroicons": "^1.2.3",
         "@shikijs/transformers": "^3.21.0",
         "@tailwindcss/vite": "^4.1.18",
         "@types/md5": "^2.3.6",
+        "astro": "^5.16.13",
+        "astro-icon": "^1.1.5",
         "astro-link-validator": "github:rodgtr1/astro-link-validator",
         "astro-seo": "^1.1.0",
         "daisyui": "^5.5.14",
