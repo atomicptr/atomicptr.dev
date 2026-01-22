@@ -1,12 +1,13 @@
 export interface PostContent {
     title: string;
+    description?: string;
     date: string;
-    image: {
+    image?: {
         src: string;
         caption: string?;
-    }?;
-    links: Link[];
-    tags: string[];
+    };
+    links?: Link[];
+    tags?: string[];
 }
 
 export interface Post {

@@ -2,18 +2,19 @@
 import Comments from "../components/Comments.astro";
 import Gravatar from "../components/Gravatar.astro";
 import RootLayout from "./RootLayout.astro";
+import type { Link, PostContent } from "../types";
 import { Icon } from "astro-icon/components";
 import { SEO } from "astro-seo";
+import { createExcerpt } from "../utils/excerpt";
 
 import config from "../config.ts";
-import type { Link, PostContent } from "../types";
 
 interface Props {
     frontmatter: PostContent;
 }
 
 const { frontmatter } = Astro.props;
-const { title, date, image, tags, links } = frontmatter;
+const { title, description, date, image, tags, links } = frontmatter;
 
 const displayDate = new Date(date).toLocaleDateString("en-US", {
     year: "numeric",
@@ -27,7 +28,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 <RootLayout title={title}>
     <SEO slot="head"
         title={`${title} | ${config.title}`}
-        description={config.description}
+        description={description ?? (await createExcerpt(await Astro.slots.render("default"))) ?? config.description}
         canonical={canonicalURL}
         openGraph={{
             basic: {

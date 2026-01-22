@@ -13,12 +13,15 @@ export async function getStaticPaths() {
     );
 
     const uniqueTags = [
-        ...new Set(posts.map((post: Post) => post.frontmatter.tags).flat()),
+        ...new Set(
+            posts.map((post: Post) => post.frontmatter.tags ?? []).flat(),
+        ),
     ];
 
     return uniqueTags.map((tag) => {
-        const filteredPosts = posts.filter((post) =>
-            post.frontmatter.tags.includes(tag),
+        const filteredPosts = posts.filter(
+            (post) =>
+                post.frontmatter.tags && post.frontmatter.tags.includes(tag),
         );
         return {
             params: { tag },
