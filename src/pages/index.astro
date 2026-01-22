@@ -23,11 +23,15 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
                 title: config.title,
                 type: "website",
                 image: new URL("/social.jpg", Astro.site).toString(),
+            },
+            optional: {
+                description: config.description,
             }
         }}
         twitter={{
             creator: `@${config.social.xcom}`,
             card: "summary_large_image",
+            description: config.description,
         }}
     />
     <section class="bg-base-200/50 md:rounded-3xl p-8 my-12 border border-base-content/5">

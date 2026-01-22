@@ -23,18 +23,22 @@ const displayDate = new Date(date).toLocaleDateString("en-US", {
 });
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const postDescription = description ?? (await createExcerpt(await Astro.slots.render("default"))) ?? config.description;
 ---
 
 <RootLayout title={title}>
     <SEO slot="head"
         title={`${title} | ${config.title}`}
-        description={description ?? (await createExcerpt(await Astro.slots.render("default"))) ?? config.description}
+        description={postDescription}
         canonical={canonicalURL}
         openGraph={{
             basic: {
                 title: title,
                 type: "article",
                 image: image?.src ?? `${new URL("/social.jpg", Astro.site).toString()}`,
+            },
+            optional: {
+                description: postDescription,
             },
             article: {
                 publishedTime: date,
@@ -45,6 +49,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
         twitter={{
             creator: `@${config.social.xcom}`,
             card: "summary_large_image",
+            description: postDescription,
         }}
     />
 
