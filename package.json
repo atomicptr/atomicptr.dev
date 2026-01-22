@@ -1,7 +1,7 @@
 {
-    "name": "v2-atomicptr-dev",
+    "name": "atomicptr.dev",
     "type": "module",
-    "version": "0.0.1",
+    "version": "3.0.0",
     "scripts": {
         "dev": "astro dev",
         "build": "astro build",
@@ -10,6 +10,8 @@
     },
     "devDependencies": {
         "@astrojs/mdx": "^4.3.13",
+        "@astrojs/rss": "^4.0.15",
+        "@astrojs/sitemap": "^3.7.0",
         "@iconify-json/fa7-brands": "^1.2.1",
         "@iconify-json/heroicons": "^1.2.3",
         "@igorskyflyer/strip-html": "^2.1.0",
