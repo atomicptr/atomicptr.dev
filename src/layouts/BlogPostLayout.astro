@@ -91,12 +91,6 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
                                 <Icon name="heroicons:heart" />
                             </span>
                         </a>
-
-                        <button class="flex items-center gap-1.5 hover:text-accent transition-all">
-                            <span class="opacity-50 hover:opacity-100">
-                                <Icon name="heroicons:link" />
-                            </span>
-                        </button>
                     </nav>
                 </div>
             </header>
@@ -147,4 +141,10 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
             <Comments />
         </article>
     </main>
+
+    <div class="fab">
+        <button class="btn btn-primary btn-circle btn-outline btn-lg" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+            <Icon name="heroicons:arrow-up" />
+        </button>
+    </div>
 </RootLayout>
