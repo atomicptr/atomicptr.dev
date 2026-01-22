@@ -3,14 +3,33 @@ import RootLayout from "../layouts/RootLayout.astro";
 import { Icon } from "astro-icon/components";
 import Gravatar from "../components/Gravatar.astro";
 import PostsList from "../components/PostsList.astro";
+import { SEO } from "astro-seo";
 import config from "../config.ts";
 
 const posts = Object.values(
     import.meta.glob("./blog/_posts/**/*.mdx", { eager: true }),
 );
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <RootLayout title="Blog">
+    <SEO slot="head"
+        title={`Blog | ${config.title}`}
+        description={config.description}
+        canonical={canonicalURL}
+        openGraph={{
+            basic: {
+                title: config.title,
+                type: "website",
+                image: new URL("/social.jpg", Astro.site),
+            }
+        }}
+        twitter={{
+            creator: `@${config.social.xcom}`,
+            card: "summary_large_image",
+        }}
+    />
     <section class="bg-base-200/50 md:rounded-3xl p-8 my-12 border border-base-content/5">
         <div class="flex flex-col md:flex-row items-center gap-8">
             <div class="avatar">

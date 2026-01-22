@@ -11,7 +11,7 @@
         "@shikijs/transformers": "^3.21.0",
         "@tailwindcss/vite": "^4.1.18",
         "@types/md5": "^2.3.6",
-        "astro": "^5.16.12",
+        "astro": "^5.16.13",
         "astro-icon": "^1.1.5",
         "astro-link-validator": "github:rodgtr1/astro-link-validator",
         "astro-seo": "^1.1.0",

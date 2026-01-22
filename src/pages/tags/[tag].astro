@@ -2,7 +2,10 @@
 import PostsList from "../../components/PostsList.astro";
 import RootLayout from "../../layouts/RootLayout.astro";
 import { Icon } from "astro-icon/components";
+import { SEO } from "astro-seo";
 import type { Post } from "../../types";
+
+import config from "../../config.ts";
 
 export async function getStaticPaths() {
     const posts: Post[] = Object.values(
@@ -26,10 +29,27 @@ export async function getStaticPaths() {
 
 const { tag } = Astro.params;
 const { posts } = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 ---
 
-
 <RootLayout title={`#${tag}`}>
+    <SEO slot="head"
+        title={`#${tag} | ${config.title}`}
+        description={`Posts tagged with #${tag}`}
+        canonical={canonicalURL}
+        openGraph={{
+            basic: {
+                title: `Posts tagged: #${tag}`,
+                type: "website",
+                image: new URL("/social.jpg", Astro.site),
+            }
+        }}
+        twitter={{
+            creator: `@${config.social.xcom}`,
+            card: "summary_large_image",
+        }}
+    />
     <a href="/" class="btn btn-ghost btn-xs mt-12">
         <Icon name="heroicons:chevron-left" />
         Back
@@ -41,5 +61,3 @@ const { posts } = Astro.props;
 
     <PostsList posts={posts} />
 </RootLayout>
-
-
