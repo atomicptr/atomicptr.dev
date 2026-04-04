@@ -1,0 +1,55 @@
+---
+import config from "@src/config";
+
+interface GithubResponse {
+    total_count: number;
+    incomplete_results: boolean;
+    items: GithubItem[];
+}
+
+interface GithubItem {
+    repository: Repository;
+}
+
+interface Repository {
+    name: string;
+    private: boolean;
+    html_url: string;
+}
+
+export async function getStaticPaths() {
+    const token = import.meta.env.GITHUB_TOKEN;
+
+    const res = await fetch(
+        `https://api.github.com/search/code?q=user:${config.goVanityUrl.githubUsername}+filename:go.mod+path:/&per_page=100`,
+        {
+            headers: { Authorization: `token ${token}` },
+        },
+    );
+
+    const repos: GithubResponse = await res.json();
+
+    return repos.items
+        .map((item) => item.repository)
+        .filter((repo) => !repo.private)
+        .map((repo) => ({
+            params: { repo: repo.name },
+            props: { repoUrl: repo.html_url },
+        }));
+}
+
+const { repo } = Astro.params;
+const { repoUrl } = Astro.props;
+
+const vanityUrl = "atomicptr.dev";
+const redirectUrl = config.goVanityUrl.redirectToPkgGoDev
+    ? `https://pkg.go.dev/${vanityUrl}/${repo}`
+    : repoUrl;
+---
+
+<!DOCTYPE html>
+
+<meta name="go-import" content={`${vanityUrl}/${repo} git ${repoUrl}`} />
+<meta http-equiv="refresh" content={`0; url=${redirectUrl}`} />
+
+Redirecting to <a href={redirectUrl}>{redirectUrl}</a>...

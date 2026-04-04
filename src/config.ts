@@ -24,4 +24,9 @@ export default {
         category: "Comments",
         categoryId: "DIC_kwDOLCEAgs4CcRWF",
     },
+
+    goVanityUrl: {
+        githubUsername: "atomicptr",
+        redirectToPkgGoDev: true,
+    },
 };
