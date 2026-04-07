@@ -1,34 +1,26 @@
 ---
 import BlogPostLayout from "@src/layouts/BlogPostLayout.astro";
-import type { Post } from "@src/types";
+import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
-    const posts: Post[] = Object.values(
-        import.meta.glob("@src/pages/blog/_posts/**/*.mdx", {
-            eager: true,
-        }),
-    );
+    const posts = await getCollection("blog");
 
-    return posts.map((post: Post) => {
-        const slug = post.file
-            .split("/")
-            .pop()!
-            .replace(/\.mdx$/, "");
+    return posts.map((entry) => {
+        const slug =
+            entry.filePath?.split("/").pop()!.split(".").shift()! ?? "";
 
         return {
-            params: {
-                slug: post.slug ?? slug,
-            },
-            props: { post },
+            params: { slug },
+            props: { entry, slug, filePath: entry.filePath },
         };
     });
 }
 
-const post = Astro.props.post as any;
-const Content = post.Content ?? post.default ?? null;
+const { entry, slug, filePath } = Astro.props;
+const { Content } = await render(entry);
 ---
 
-<BlogPostLayout {...post}>
+<BlogPostLayout {slug} file={filePath} frontmatter={entry.data}>
     <Content />
 </BlogPostLayout>
 

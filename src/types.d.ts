@@ -1,7 +1,7 @@
 export interface PostContent {
     title: string;
     description?: string;
-    date: string;
+    date: Date;
     image?: {
         src: string;
         caption?: string;
