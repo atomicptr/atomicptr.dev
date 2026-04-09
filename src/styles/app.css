@@ -121,4 +121,16 @@ html, body {
             filter: blur(0);
         }
     }
+
+    hr {
+        @apply border-base-300/50 my-8;
+    }
+
+    ul {
+        @apply list-disc my-4;
+
+        li {
+            @apply ml-8;
+        }
+    }
 }
