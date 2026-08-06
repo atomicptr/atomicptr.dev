@@ -1,46 +1,13 @@
 import rss from "@astrojs/rss";
 import config from "@src/config";
-
-interface Post {
-    slug?: string;
-    file: string;
-    frontmatter: {
-        title: string;
-        description?: string;
-        date: string;
-        tags?: string[];
-    };
-}
-
-function getSlugFromFilePath(filePath: string): string {
-    return filePath
-        .split("/")
-        .pop()!
-        .replace(/\.mdx$/, "");
-}
-
-function getAllPosts(): Post[] {
-    const posts: Post[] = Object.values(
-        import.meta.glob("@src/pages/blog/_posts/**/*.mdx", {
-            eager: true,
-        }),
-    );
-
-    return posts.map((post: Post) => {
-        const slug = getSlugFromFilePath(post.file);
-        return {
-            ...post,
-            slug: post.slug ?? slug,
-        };
-    });
-}
+import type { Post } from "@src/types";
+import { getAllPosts } from "@src/utils/posts";
 
 export async function GET({ params }: { params: { tag: string } }) {
     const tag = params.tag;
     const siteUrl = config.domain;
     const siteTitle = config.title;
-
-    const posts = getAllPosts();
+    const posts = await getAllPosts();
 
     const filteredPosts = posts
         .filter((post: Post) => post.frontmatter.tags?.includes(tag))
@@ -56,8 +23,8 @@ export async function GET({ params }: { params: { tag: string } }) {
         description: `Posts tagged with #${tag}`,
         site: siteUrl,
         items: filteredPosts.map((post: Post) => {
-            const slug = post.slug || getSlugFromFilePath(post.file);
-            const postUrl = `${siteUrl}/blog/${slug}`;
+            const postUrl = `${siteUrl}/blog/${post.slug}`;
+
             return {
                 title: post.frontmatter.title,
                 link: postUrl,
@@ -71,12 +38,10 @@ export async function GET({ params }: { params: { tag: string } }) {
     });
 }
 
-export function getStaticPaths() {
-    const posts = getAllPosts();
+export async function getStaticPaths() {
+    const posts = await getAllPosts();
     const uniqueTags = [
-        ...new Set(
-            posts.map((post: Post) => post.frontmatter.tags ?? []).flat(),
-        ),
+        ...new Set(posts.flatMap((post: Post) => post.frontmatter.tags ?? [])),
     ];
 
     return uniqueTags.map((tag) => ({

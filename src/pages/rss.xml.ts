@@ -1,41 +1,9 @@
 import rss from "@astrojs/rss";
-
-interface Post {
-    slug?: string;
-    file: string;
-    frontmatter: {
-        title: string;
-        description?: string;
-        date: string;
-        tags?: string[];
-    };
-}
-
-function getSlugFromFilePath(filePath: string): string {
-    return filePath
-        .split("/")
-        .pop()!
-        .replace(/\.mdx$/, "");
-}
-
-function getAllPosts(): Post[] {
-    const posts: Post[] = Object.values(
-        import.meta.glob("./blog/_posts/**/*.mdx", {
-            eager: true,
-        }),
-    );
-
-    return posts.map((post: Post) => {
-        const slug = getSlugFromFilePath(post.file);
-        return {
-            ...post,
-            slug: post.slug ?? slug,
-        };
-    });
-}
+import type { Post } from "@src/types";
+import { getAllPosts } from "@src/utils/posts";
 
 export async function GET() {
-    const posts = getAllPosts();
+    const posts = await getAllPosts();
     const siteUrl = "https://atomicptr.dev";
     const siteTitle = "dev://atomicptr";
     const siteDescription = "A blog mostly about programming";
@@ -49,8 +17,8 @@ export async function GET() {
         description: siteDescription,
         site: siteUrl,
         items: sortedPosts.map((post: Post) => {
-            const slug = post.slug || getSlugFromFilePath(post.file);
-            const postUrl = `${siteUrl}/blog/${slug}`;
+            const postUrl = `${siteUrl}/blog/${post.slug}`;
+
             return {
                 title: post.frontmatter.title,
                 link: postUrl,

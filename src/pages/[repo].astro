@@ -20,6 +20,10 @@ interface Repository {
 export async function getStaticPaths() {
     const token = import.meta.env.GITHUB_TOKEN;
 
+    if (!token) {
+        return [];
+    }
+
     const res = await fetch(
         `https://api.github.com/search/code?q=user:${config.goVanityUrl.githubUsername}+filename:go.mod+path:/&per_page=100`,
         {
@@ -27,7 +31,15 @@ export async function getStaticPaths() {
         },
     );
 
-    const repos: GithubResponse = await res.json();
+    if (!res.ok) {
+        return [];
+    }
+
+    const repos: Partial<GithubResponse> = await res.json();
+
+    if (!Array.isArray(repos.items)) {
+        return [];
+    }
 
     return repos.items
         .map((item) => item.repository)

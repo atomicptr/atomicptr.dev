@@ -1,5 +1,6 @@
 ---
 import type { Post } from "@src/types";
+import { getSlugFromFilePath } from "@src/utils/posts";
 
 type Grouped = { [year: string]: Post[] };
 
@@ -34,14 +35,14 @@ const years = Object.keys(groupedPosts).sort(
 
             {(groupedPosts[year] ?? []).map((post: Post) => {
                 const date = new Date(post.frontmatter.date);
-                const slug = post.file.split('/').pop()!.replace(/\.mdx$/, '');
+                const slug = post.slug ?? getSlugFromFilePath(post.file);
 
                 return (
                     <div class="w-full flex mb-4 items-center">
                         <div class="min-w-16 opacity-50">
                             {date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' })}
                         </div>
-                        <a href={`/blog/${post.slug ?? slug}`} class="link-primary">
+                        <a href={`/blog/${slug}`} class="link-primary">
                             {post.frontmatter.title}
                         </a>
                     </div>

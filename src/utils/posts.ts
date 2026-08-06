@@ -1,4 +1,5 @@
 import type { Post } from "@src/types";
+import { getCollection } from "astro:content";
 
 export interface SeriesPost {
     title: string;
@@ -13,31 +14,31 @@ export interface PostSeries {
     hasSeries: boolean;
 }
 
-function getSlugFromFilePath(filePath: string): string {
+export function getSlugFromFilePath(filePath: string): string {
     return filePath
         .split("/")
         .pop()!
-        .replace(/\.mdx$/, "");
+        .replace(/\.(md|mdx)$/, "");
 }
 
-export function getAllPosts(): Post[] {
-    const posts: Post[] = Object.values(
-        import.meta.glob("@src/pages/blog/_posts/**/*.mdx", {
-            eager: true,
-        }),
-    );
+export async function getAllPosts(): Promise<Post[]> {
+    const posts = await getCollection("blog");
 
-    return posts.map((post: Post) => {
-        const slug = getSlugFromFilePath(post.file);
+    return posts.map((post) => {
+        const file = post.filePath ?? post.id;
+        const slug = getSlugFromFilePath(file);
+
         return {
+            file,
+            frontmatter: post.data,
             ...post,
             slug: post.slug ?? slug,
         };
     });
 }
 
-export function getPostSeries(currentSlug: string): PostSeries {
-    const allPosts = getAllPosts();
+export async function getPostSeries(currentSlug: string): Promise<PostSeries> {
+    const allPosts = await getAllPosts();
     const postsMap = new Map<string, Post>();
 
     for (const post of allPosts) {

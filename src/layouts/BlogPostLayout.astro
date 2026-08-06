@@ -39,7 +39,7 @@ const currentSlug =
         .pop()
         ?.replace(/\.mdx$/, "") ??
     "";
-const series = getPostSeries(currentSlug);
+const series = await getPostSeries(currentSlug);
 ---
 
 <RootLayout title={title}>
